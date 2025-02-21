@@ -15,3 +15,4 @@ Often you need a library of references in bibtex format, as well as a CSL style 
 
 You can add further folders. If you make a scientific poster, that should go into a `poster` folder. Or you could have a `website` folder if you plan to write a blog-post or make an interactive shiny-app for your project.  
 
+All the files and folders have been retained for now. The manuscript has been updated.

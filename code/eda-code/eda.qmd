@@ -1,28 +1,8 @@
 ---
-title: "An example exploratory analysis script"
-date: "2024-02-07"
-output: html_document
+title: "Exploratory analysis"
 ---
 
-  
-  
-This Quarto file loads the cleaned data and does some exploring.
-
-I'm only showing it the way where the code is included in the file. 
-As described in the `processing_code` materials, I currently prefer the approach of having R code in a separate file and pulling it in.
-
-But I already had this written and haven't yet re-done it that way. Feel free to redo and send a pull request on GitHub :)
-
-Again, it is largely a matter of preference and what makes the most sense to decide if one wants to have code inside Quarto files, or as separate R files.
-And sometimes, an R script with enough comments is good enough and one doesn't need a Quarto file.
-
-Also note that while here I split cleaning and exploring, this is iterative. You saw that as part of the processing, we already had to explore the data somewhat to understand how to clean it. In general, as you explore, you'll find things that need cleaning. As you clean, you can explore more. Therefore, at times it might make more sense to combine the cleaning and exploring code parts into a single R or Quarto file. Or split things in any other logical way.
-
-As part of the exploratory analysis, you should produce plots or tables or other summary quantities for the most interesting/important quantities in your data. Depending on the total number of variables in your dataset, explore all or some of the others. Figures produced here might be histograms or density plots, correlation plots, etc. Tables might summarize your data.
-
-Start by exploring one variable at a time. Then continue by creating plots or tables of the outcome(s) of interest and the predictor/exposure/input variables you are most interested in. If your dataset is small, you can do that for all variables. 
-
-Plots produced here can be scatterplots, boxplots, violinplots, etc. Tables can be simple 2x2 tables or larger ones.
+We start of by summarizing all the information
 
 # Setup
 
@@ -32,6 +12,8 @@ library(here) #for data loading/saving
 library(dplyr)
 library(skimr)
 library(ggplot2)
+library(tidyr)
+library(knitr)
 ```
 
 
@@ -45,69 +27,176 @@ mydata <- readRDS(data_location)
 ```
 
 
-
-
-
 # Data exploration through tables
 
 Showing a bit of code to produce and save a summary table.
-
+First, we summarize all our information using a table.
 
 ```{r}
-summary_df = skimr::skim(mydata)
-print(summary_df)
-# save to file
-summarytable_file = here("results", "tables", "summarytable.rds")
-saveRDS(summary_df, file = summarytable_file)
+library(dplyr)
+library(tidyr)
+library(kableExtra)
+
+# Create a table for Age summary with Mean and SD
+age_summary <- data.frame(
+    Category = "Age",
+    Value = paste(round(mean(mydata$patient_age, na.rm = TRUE), 2), "±", round(sd(mydata$patient_age, na.rm = TRUE), 2)),
+    Count = NA,
+    Percent = NA
+)
+
+# Sex Summary
+sex_summary <- mydata %>%
+    group_by(sex) %>%
+    summarise(Count = n()) %>%
+    mutate(Percent = round((Count / sum(Count)) * 100, 1)) %>%
+    rename(Category = sex) %>%
+    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+
+# Drug Summary
+drug_summary <- mydata %>%
+    group_by(suspect_product_active_ingredients) %>%
+    summarise(Count = n()) %>%
+    mutate(Percent = round((Count / sum(Count)) * 100, 1)) %>%
+    rename(Category = suspect_product_active_ingredients) %>%
+    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+
+# Outcome Summary
+outcome_summary <- mydata %>%
+    group_by(serious) %>%
+    summarise(Count = n()) %>%
+    mutate(Percent = round((Count / sum(Count)) * 100, 1)) %>%
+    rename(Category = serious) %>%
+    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+
+# Reporter Type Summary
+reporter_summary <- mydata %>%
+    group_by(reporter_type) %>%
+    summarise(Count = n()) %>%
+    mutate(Percent = round((Count / sum(Count)) * 100, 1)) %>%
+    rename(Category = reporter_type) %>%
+    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+
+# Country Summary
+country_summary <- mydata %>%
+    group_by(country_where_event_occurred) %>%
+    summarise(Count = n()) %>%
+    mutate(Percent = round((Count / sum(Count)) * 100, 1)) %>%
+    rename(Category = country_where_event_occurred) %>%
+    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+
+# Reaction Type Summary
+# Define the organ system columns
+organ_systems <- c("organ_system_1", "organ_system_2", "organ_system_3", "organ_system_4", "organ_system_5")
+
+summary_data <- mydata %>%
+    select(all_of(organ_systems)) %>%
+    pivot_longer(cols = everything(), values_to = "organ_system") %>%
+    filter(!is.na(organ_system)) %>%
+    group_by(organ_system) %>%
+    summarise(
+        Count = n(),
+        Percent = round((n() / nrow(mydata)) * 100, 1)
+    ) %>%
+    rename(Category = organ_system) %>%
+    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+
+# Combine all summaries into one table
+final_summary_table <- bind_rows(
+    data.frame(Category = "Age", Value = age_summary$Value, stringsAsFactors = FALSE),
+    data.frame(Category = "Sex", Value = "", stringsAsFactors = FALSE), # Subheading for Sex
+    sex_summary %>% select(Category, Value),
+    data.frame(Category = "", Value = "", stringsAsFactors = FALSE), # Blank row after Sex
+    data.frame(Category = "Immune Checkpoint Inhibitors", Value = "", stringsAsFactors = FALSE), # Subheading for Drugs
+    drug_summary %>% select(Category, Value),
+    data.frame(Category = "", Value = "", stringsAsFactors = FALSE), # Blank row after Drugs
+    data.frame(Category = "Outcome", Value = "", stringsAsFactors = FALSE), # Subheading for Outcome
+    outcome_summary %>% select(Category, Value),
+    data.frame(Category = "", Value = "", stringsAsFactors = FALSE), # Blank row after Outcome
+    data.frame(Category = "Reporter Type", Value = "", stringsAsFactors = FALSE), # Subheading for Reporter Type
+    reporter_summary %>% select(Category, Value),
+    data.frame(Category = "", Value = "", stringsAsFactors = FALSE), # Blank row after Reporter Type
+    data.frame(Category = "Country", Value = "", stringsAsFactors = FALSE), # Subheading for Country
+    country_summary %>% select(Category, Value),
+    data.frame(Category = "", Value = "", stringsAsFactors = FALSE), # Blank row after Country
+    data.frame(Category = "Reaction Type", Value = "", stringsAsFactors = FALSE), # Subheading for Reaction Type
+    summary_data %>% select(Category, Value)
+)
+
+# Create a publication-quality table using kableExtra
+final_summary_table %>%
+    kable("html", caption = "Table 1: Descriptive Statistics", col.names = c("Category", "Value")) %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+    column_spec(1, bold = TRUE) %>%
+    row_spec(which(final_summary_table$Category %in% c("Age", "Sex", "Immune Checkpoint Inhibitors", "Outcome", "Reporter Type", "Country", "Reaction Type")), bold = TRUE, background = "#f7f7f7") %>%
+    footnote(general = "This table summarizes the patient data by various categories.")
+
 ```
 
-We are saving the results to the `results` folder. Depending on how many tables/figures you have, it might make sense to have separate folders for each. And/or you could have separate folders for exploratory tables/figures and for final tables/figures. Just choose a setup that makes sense for your project and works for you, and provide enough documentation that someone can understand what you are doing.
+
+We save the table.
+
+```{r}
+# save to file
+summarytable_file = here("results", "tables", "summarytable.rds")
+saveRDS(final_summary_table, file = summarytable_file)
+```
 
 
 # Data exploration through figures
 
-Histogram plots for the continuous outcomes. 
+Bar graph for outcomes by drugs.
 
-Height first.
 
 ```{r}
-p1 <- mydata %>% ggplot(aes(x=Height)) + geom_histogram() 
-plot(p1)
-figure_file = here("results", "figures","height-distribution.png")
+library(ggplot2)
+
+# Define custom colors for the 'serious' variable
+custom_colors <- c(
+    "Serious" = "#d7191c",  # Red for serious
+    "Non-Serious" = "#2c7bb6"    # Blue for non-serious
+)
+
+# Create the plot with custom colors for 'serious'
+p1 <- mydata %>%
+    ggplot(aes(x = suspect_product_active_ingredients, fill = serious)) +
+    geom_bar(position = "stack") + # Use "stack" for stacked bars
+    scale_fill_manual(values = custom_colors) + # Apply custom colors
+    labs(
+        title = "Bar Plot of Outcomes of Immune Checkpoint Inhibitors",
+        x = "Immune Checkpoint Inhibitors",
+        y = "Count",
+        fill = "Outcomes"
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate x-axis labels for readability
+
+# Print the plot
+print(p1)
+
+figure_file = here("results", "figures","figure1.png")
 ggsave(filename = figure_file, plot=p1) 
 ```
 
-Now weights.
+Now let's look at the bar graph by type of organ system.
 
 ```{r}
-p2 <- mydata %>% ggplot(aes(x=Weight)) + geom_histogram() 
-plot(p2)
-figure_file = here("results", "figures","weight-distribution.png")
+p2 <- summary_data %>%
+    ggplot(aes(x = reorder(Category, Count), y = Count)) + # Reorder by Count ascending
+    geom_col(fill = "#1f77b4") +
+    labs(
+        title = "Bar Plot of Reaction Types",
+        x = "Organ System",
+        y = "Count",
+        caption = "Percentages are shown in parentheses"
+    ) +
+    theme_minimal() +
+    geom_text(aes(label = Value), hjust = -0.1, size = 3) + # Adjust label position
+    coord_flip() # Flip the axes
+
+# Print the plot
+print(p2)
+
+figure_file = here("results", "figures","figure2.png")
 ggsave(filename = figure_file, plot=p2) 
 ```
-
-Now height as function of weight.
-
-```{r}
-p3 <- mydata %>% ggplot(aes(x=Height, y=Weight)) + geom_point() + geom_smooth(method='lm')
-plot(p3)
-figure_file = here("results", "figures", "height-weight.png")
-ggsave(filename = figure_file, plot=p3) 
-```
-
-Once more height as function of weight, stratified by gender. Note that there is so little data, it's a bit silly. But we'll plot it anyway.
-
-```{r}
-p4 <- mydata %>% ggplot(aes(x=Height, y=Weight, color = Gender)) + geom_point() + geom_smooth(method='lm')
-plot(p4)
-figure_file = here("results", "figures", "height-weight-stratified.png")
-ggsave(filename = figure_file, plot=p4) 
-```
-
-
-
-# Notes
-
-For your own explorations, tables and figures can be "quick and dirty". As long as you can see what's going on, there is no need to polish them. That's in contrast to figures you'll produce for your final products (paper, report, presentation, website, etc.). Those should look as nice, polished and easy to understand as possible.
-
-

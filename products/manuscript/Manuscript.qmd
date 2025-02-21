@@ -30,8 +30,7 @@ $\land$ Corresponding author: poojaGokhale\@uga.edu
 
 # Summary/Abstract
 
-*Write a summary of your project.*
-*This part has not been completed. The source code has been left as is*
+*Write a summary of your project.* *This part has not been completed. The source code has been left as is*
 
 {{< pagebreak >}}
 
@@ -49,13 +48,11 @@ $\land$ Corresponding author: poojaGokhale\@uga.edu
 
 *ICIs are associated with various adverse effects, particularly with immune-related adverse events (irAEs) such as pnemonitis, hepatitis, colitis, hypothyroidism, dermatitis, and others [@Yin2023].This study aims to analyze real-world adverse event data from the FDA Adverse Event Reporting System associated with ICI therapy in bladder cancer.*
 
-
 ## Description of data and data source
 
 *The United States Food and Drug Administration (FDA) maintains a dashboard of adverse event reports in the FDA Adverse Event Reporting System (FAERS) [@us2018fda]. FAERS is a publicly available dashboard of safety reports submitted by patients, healthcare professionals, and pharmaceutical companies.*
 
 *Since FAERS consists of self-reported data from multiple sources, there may be duplicates, missing data as well as various errors. The findings of this study should be considered in context of this data limitation.*
-
 
 ## Questions/Hypotheses to be addressed
 
@@ -65,34 +62,19 @@ $\land$ Corresponding author: poojaGokhale\@uga.edu
 
 # Methods
 
-*Describe your methods. That should describe the data, the cleaning processes, and the analysis approaches. You might want to provide a shorter description here and all the details in the supplement.*
-*This part has not been completed. The source code has been left as is*
-*Details have been provided in the data acquisition and statistical analysis parts.*
-
-## Schematic of workflow
-
-*This part has not been completed. The source code has been left as is*
-
-Sometimes you might want to show a schematic diagram/figure that was not created with code (if you can do it with code, do it). @fig-schematic is an example of some - completely random/unrelated - schematic that was generated with Biorender. We store those figures in the `assets` folder.
-
-```{r}
-#| label: fig-schematic
-#| fig-cap: "A figure that is manually generated and shows some overview/schematic. This has nothing to do with the data, it's just a random one from one of our projects I found and placed here."
-#| echo: FALSE
-knitr::include_graphics(here("assets","antigen-recognition.png"))
-```
+*Describe your methods. That should describe the data, the cleaning processes, and the analysis approaches. You might want to provide a shorter description here and all the details in the supplement.* *This part has not been completed. The source code has been left as is* *Details have been provided in the data acquisition and statistical analysis parts.*
 
 ## Data aquisition
 
 *In order to obtain the FAERS data, the ICIs were used to search by product. Pembrolizumab, atezolizumab, avelumab, and nivolumab were the keywords used. Previously, durvalumab, and ipilimumab were also approved for bladder cancer treatment. However, this indication has since then been removed by the manufacturers. As such, these were not considered. Following this, the search was limited to cases of bladder cancer. A total of 1,886 reactions were obtained.*
 
-
 ## Data import and cleaning
 
 *The file has been downloaded as an Excel file. The code for the analysis would involve loading the file, removing duplicates, assessing missing data, and deciding whether to remove it.* *This will be followed by filtering the data to retain only irAEs. While this step could be performed within the FAERS dashboard, this is not always a straightforward process. FAERS writes all the reactions associated with an agent in a single column, such that one column may have over 10-15 reactions. As such, this step will be performed here.*
 
-*The cleaning process has not yet been started. The appropriate R code will be provided as the analysis is carried out.*
+*The FAERS data initially consisted of 2948 reactions associated with ICIs in bladder cancer.*
 
+*Reactions with concomitant suspect products, combination products, and those which were not irAEs were removed. This resulted in a total of 369 cases. The details are available in the processing code file.*
 
 ## Statistical analysis
 
@@ -114,15 +96,16 @@ knitr::include_graphics(here("assets","antigen-recognition.png"))
 
 ## Exploratory/Descriptive analysis
 
-*Use a combination of text/tables/figures to explore and describe your data. Show the most important descriptive results here. Additional ones should go in the supplement. Even more can be in the R and Quarto files that are part of your project.*
+@tbl-summarytable *provides the patient characteristics, and summary of reactions by type of immune checkpoint inhibitor, and organ system affected.*
 
-@tbl-summarytable shows a summary of the data.
+*The mean age reported was 66.94±17.65. A large percentage of the reactions occurred in males (70.2%). This may be because bladder cancer is much more common in males than in females.*
 
-Note the loading of the data providing a **relative** path using the `../../` notation. (Two dots means a folder up). You never want to specify an **absolute** path like `C:\ahandel\myproject\results\` because if you share this with someone, it won't work for them since they don't have that path. You can also use the `here` R package to create paths. See examples of that below. I generally recommend the `here` package.
+*Over 60% of the reactions were associated with pembrolizumab. A majority of the reactions were serious (83.7%)*
+
 
 ```{r}
 #| label: tbl-summarytable
-#| tbl-cap: "Data summary table."
+#| tbl-cap: "Table 1: Descriptive Statistics"
 #| echo: FALSE
 resulttable=readRDS("../../results/tables/summarytable.rds")
 knitr::kable(resulttable)
@@ -130,18 +113,27 @@ knitr::kable(resulttable)
 
 ## Basic statistical analysis
 
-*To get some further insight into your data, if reasonable you could compute simple statistics (e.g. simple models with 1 predictor) to look for associations between your outcome(s) and each individual predictor variable. Though note that unless you pre-specified the outcome and main exposure, any "p\<0.05 means statistical significance" interpretation is not valid.*
-
-@fig-result shows a scatterplot figure produced by one of the R scripts.
+*@fig-result shows the number of reactions by drug, along with the seriousness of the reaction.*
 
 ```{r}
 #| label: fig-result
-#| fig-cap: "Height and weight stratified by gender."
+#| fig-cap: "Bar chart of outcome of immune checkpoint inhibitors"
 #| echo: FALSE
-knitr::include_graphics(here("results","figures","height-weight-stratified.png"))
+knitr::include_graphics(here("results","figures","figure1.png"))
+```
+
+*@fig-result1 shows the bar chart by type of organ system involved in the reaction.*
+
+```{r}
+#| label: fig-result1
+#| fig-cap: "Bar chart of types of reactions"
+#| echo: FALSE
+knitr::include_graphics(here("results","figures","figure2.png"))
 ```
 
 ## Full analysis
+
+*This part has not yet been edited.*
 
 *Use one or several suitable statistical/machine learning methods to analyze your data and to produce meaningful figures, tables, etc. This might again be code that is best placed in one or several separate R scripts that need to be well documented. You want the code to produce figures and data ready for display as tables, and save those. Then you load them here.*
 
