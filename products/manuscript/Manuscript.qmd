@@ -137,16 +137,6 @@ knitr::include_graphics(here("results","figures","figure2.png"))
 
 *Use one or several suitable statistical/machine learning methods to analyze your data and to produce meaningful figures, tables, etc. This might again be code that is best placed in one or several separate R scripts that need to be well documented. You want the code to produce figures and data ready for display as tables, and save those. Then you load them here.*
 
-Example @tbl-resulttable2 shows a summary of a linear model fit.
-
-```{r}
-#| label: tbl-resulttable2
-#| tbl-cap: "Linear model fit table."
-#| echo: FALSE
-resulttable2 = readRDS(here("results","tables","resulttable2.rds"))
-knitr::kable(resulttable2)
-```
-
 {{< pagebreak >}}
 
 # Discussion
