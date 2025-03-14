@@ -94,14 +94,19 @@ reactions_of_interest <- c(
   "pancreatitis", "myositis", "uveitis", "episcleritis", "nephritis", "peripheral neuropathy", "myelitis", "encephalitis", "erythema", "autoimmune", "psoriasis", "adrenal", "adrenitis", "hypercortisolism", "hypocortisolism" ,"hyperparathyroidism", "hypoparathyroidism", "hypogonadism", "thyroiditis", "graves", "thyrotoxicosis", "enterocolitis", "ileitis", "ileocolitis", "myasthenia", "neuritis", "arthritis", "lupus", "sarcoidosis", "vasculitis", "immune"
 )
 
+#Reactions with irAES
 ici_data_subset <- ici_data1 %>%
   filter(str_detect(tolower(reactions), paste(tolower(reactions_of_interest), collapse = "|")))
+
+#Reactions with irAEs
+ici_data_non_irae <- ici_data1 %>%
+  filter(!str_detect(tolower(reactions), paste(tolower(reactions_of_interest), collapse = "|")))
 
 # View the subset
 View(ici_data_subset)
 ```
 
-We have 368 reactions.
+We have 369 reactions.
 The next step is to characterize and categorize the irAEs.
 The first step is to split the reaction column, and keep only the irAEs.
 
@@ -146,6 +151,28 @@ ici_data_cleaned = ici_data_split %>% select(where( ~ !all(is.na(.))))
 The next step is to code these reactions using MedDRA Preferred Terms (PTs), which is a distinct descriptor (single medical concept) for a symptom, sign, disease diagnosis, therapeutic indication, investigation, surgical or medical procedure, and medical social or family history characteristic.
 After going through the list of reactions, I found that the reactions are already in PTs.
 
+The next step is to remove any duplicates. We will remove reports that have identical age, weight, FDA received date, country of occurrence, suspected active ingredient, and reported reaction.
+
+```{r}
+# Find duplicates based on specified columns
+duplicates <- ici_data_cleaned %>%
+  group_by(suspect_product_active_ingredients, sex, patient_age, patient_weight, reactions, initial_fda_received_date, country_where_event_occurred) %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+# Display the duplicates
+print(duplicates)
+```
+
+We see that there are 4 duplicates of 1 case.
+We remove these.
+
+```{r}
+ici_data_cleaned = ici_data_cleaned %>%
+  distinct(suspect_product_active_ingredients, sex, patient_age, patient_weight, reactions, initial_fda_received_date, country_where_event_occurred, .keep_all = TRUE)
+```
+
+
 Now, the next step is to remove columns that are not required.
 
 ```{r}
@@ -163,77 +190,88 @@ ici_data_final <- ici_data_final %>%
 Let us classify the countries into US and Outside US
 ```{r}
 ici_data_final <- ici_data_final %>%
-  mutate(country_where_event_occurred = ifelse(country_where_event_occurred != "US", "Outside US", country_where_event_occurred))
+  mutate(country_where_event_occurred = case_when(
+    country_where_event_occurred == "US" ~ "US",
+    country_where_event_occurred != "US" & country_where_event_occurred != "Not Specified" ~ "Outside US",
+    TRUE ~ country_where_event_occurred
+  ))
 
 ```
+
+The next step is to classify the irAEs by the System Organ Class (SOC) according to MedDRA.
 
 ```{r}
 library(dplyr)
 
 # Define lists of reaction keywords for each organ system
-dermatological_reactions <- c("rash", "pruritus", "dermatitis", "psoriasis")
-gastrointestinal_reactions <- c("colitis", "hepatitis", "pancreatitis", "enterocolitis", "ileitis", "ileocolitis")
-neurological_reactions <- c("myasthenia", "graves", "myelitis", "encephalitis", "neuritis", "peripheral neuropathy")
-endocrinological_reactions <- c("hyperthyroidism", "hypothyroidism", "thyroiditis", "thyrotoxicosis", "adrenitis", "adrenal", "hypogonadism", "hyperparathyroidism", "hypercortisolism", "hypophysitis", "hypoparathyroidism", "hypocortisolism", "autoimmune diabetes")
-cardiovascular_reactions <- c("myocarditis", "pericarditis")
+Skin_and_subcutaneous_tissue_disorders <- c("rash", "pruritus", "dermatitis", "psoriasis")
+Gastrointestinal_disorders <- c("colitis", "hepatitis", "pancreatitis", "enterocolitis", "ileitis", "ileocolitis")
+Nervous_system_disorders <- c("myasthenia", "graves", "myelitis", "encephalitis", "neuritis", "peripheral neuropathy")
+Endocrine_disorders <- c("hyperthyroidism", "hypothyroidism", "thyroiditis", "thyrotoxicosis", "adrenitis", "adrenal", "hypogonadism", "hyperparathyroidism", "hypercortisolism", "hypophysitis", "hypoparathyroidism", "hypocortisolism", "autoimmune diabetes")
+Cardiac_disorders <- c("myocarditis", "pericarditis", "myocarditis")
+Respiratory_thoracic_and_mediastinal_disorders <- c("pneumonitis")
+Renal_and_urinary_disorders <- c("pyelonephritis", "nephritis")
 
-# Assuming your data is stored in 'ici_data_final' and reactions are in reaction_1 to reaction_5
+# Function to classify reactions into organ systems
+classify_reaction <- function(reaction) {
+  case_when(
+    !is.na(reaction) & grepl(paste(Skin_and_subcutaneous_tissue_disorders, collapse = "|"), reaction, ignore.case = TRUE) ~ "Skin",
+    !is.na(reaction) & grepl(paste(Gastrointestinal_disorders, collapse = "|"), reaction, ignore.case = TRUE) ~ "Gastrointestinal",
+    !is.na(reaction) & grepl(paste(Nervous_system_disorders, collapse = "|"), reaction, ignore.case = TRUE) ~ "Neurological",
+    !is.na(reaction) & grepl(paste(Endocrine_disorders, collapse = "|"), reaction, ignore.case = TRUE) ~ "Endocrinological",
+    !is.na(reaction) & grepl(paste(Cardiac_disorders, collapse = "|"), reaction, ignore.case = TRUE) ~ "Cardiovascular",
+    !is.na(reaction) & grepl(paste(Respiratory_thoracic_and_mediastinal_disorders, collapse = "|"), reaction, ignore.case = TRUE) ~ "Respiratory",
+    !is.na(reaction) & grepl(paste(Renal_and_urinary_disorders, collapse = "|"), reaction, ignore.case = TRUE) ~ "Renal",
+    !is.na(reaction) ~ "Other",  # If not NA and no match, classify as Other
+    TRUE ~ NA_character_  # If NA, keep as NA
+  )
+}
+
+# Apply the function to each reaction column
 ici_data_final <- ici_data_final %>%
   mutate(
-    organ_system_1 = case_when(
-      !is.na(reaction_1) & grepl(paste(dermatological_reactions, collapse = "|"), reaction_1, ignore.case = TRUE) ~ "Skin",
-      !is.na(reaction_1) & grepl(paste(gastrointestinal_reactions, collapse = "|"), reaction_1, ignore.case = TRUE) ~ "Gastrointestinal",
-      !is.na(reaction_1) & grepl(paste(neurological_reactions, collapse = "|"), reaction_1, ignore.case = TRUE) ~ "Neurological",
-      !is.na(reaction_1) & grepl(paste(endocrinological_reactions, collapse = "|"), reaction_1, ignore.case = TRUE) ~ "Endocrinological",
-      !is.na(reaction_1) & grepl(paste(cardiovascular_reactions, collapse = "|"), reaction_1, ignore.case = TRUE) ~ "Cardiovascular",
-      !is.na(reaction_1) ~ "Other",  # If not NA and no match, classify as Other
-      TRUE ~ NA_character_  # If NA, keep as NA
-    ),
-    
-    organ_system_2 = case_when(
-      !is.na(reaction_2) & grepl(paste(dermatological_reactions, collapse = "|"), reaction_2, ignore.case = TRUE) ~ "Skin",
-      !is.na(reaction_2) & grepl(paste(gastrointestinal_reactions, collapse = "|"), reaction_2, ignore.case = TRUE) ~ "Gastrointestinal",
-      !is.na(reaction_2) & grepl(paste(neurological_reactions, collapse = "|"), reaction_2, ignore.case = TRUE) ~ "Neurological",
-      !is.na(reaction_2) & grepl(paste(endocrinological_reactions, collapse = "|"), reaction_2, ignore.case = TRUE) ~ "Endocrinological",
-      !is.na(reaction_2) & grepl(paste(cardiovascular_reactions, collapse = "|"), reaction_2, ignore.case = TRUE) ~ "Cardiovascular",
-      !is.na(reaction_2) ~ "Other",
-      TRUE ~ NA_character_
-    ),
-    
-    organ_system_3 = case_when(
-      !is.na(reaction_3) & grepl(paste(dermatological_reactions, collapse = "|"), reaction_3, ignore.case = TRUE) ~ "Skin",
-      !is.na(reaction_3) & grepl(paste(gastrointestinal_reactions, collapse = "|"), reaction_3, ignore.case = TRUE) ~ "Gastrointestinal",
-      !is.na(reaction_3) & grepl(paste(neurological_reactions, collapse = "|"), reaction_3, ignore.case = TRUE) ~ "Neurological",
-      !is.na(reaction_3) & grepl(paste(endocrinological_reactions, collapse = "|"), reaction_3, ignore.case = TRUE) ~ "Endocrinological",
-      !is.na(reaction_3) & grepl(paste(cardiovascular_reactions, collapse = "|"), reaction_3, ignore.case = TRUE) ~ "Cardiovascular",
-      !is.na(reaction_3) ~ "Other",
-      TRUE ~ NA_character_
-    ),
-    
-    organ_system_4 = case_when(
-      !is.na(reaction_4) & grepl(paste(dermatological_reactions, collapse = "|"), reaction_4, ignore.case = TRUE) ~ "Skin",
-      !is.na(reaction_4) & grepl(paste(gastrointestinal_reactions, collapse = "|"), reaction_4, ignore.case = TRUE) ~ "Gastrointestinal",
-      !is.na(reaction_4) & grepl(paste(neurological_reactions, collapse = "|"), reaction_4, ignore.case = TRUE) ~ "Neurological",
-      !is.na(reaction_4) & grepl(paste(endocrinological_reactions, collapse = "|"), reaction_4, ignore.case = TRUE) ~ "Endocrinological",
-      !is.na(reaction_4) & grepl(paste(cardiovascular_reactions, collapse = "|"), reaction_4, ignore.case = TRUE) ~ "Cardiovascular",
-      !is.na(reaction_4) ~ "Other",
-      TRUE ~ NA_character_
-    ),
-    
-    organ_system_5 = case_when(
-      !is.na(reaction_5) & grepl(paste(dermatological_reactions, collapse = "|"), reaction_5, ignore.case = TRUE) ~ "Skin",
-      !is.na(reaction_5) & grepl(paste(gastrointestinal_reactions, collapse = "|"), reaction_5, ignore.case = TRUE) ~ "Gastrointestinal",
-      !is.na(reaction_5) & grepl(paste(neurological_reactions, collapse = "|"), reaction_5, ignore.case = TRUE) ~ "Neurological",
-      !is.na(reaction_5) & grepl(paste(endocrinological_reactions, collapse = "|"), reaction_5, ignore.case = TRUE) ~ "Endocrinological",
-      !is.na(reaction_5) & grepl(paste(cardiovascular_reactions, collapse = "|"), reaction_5, ignore.case = TRUE) ~ "Cardiovascular",
-      !is.na(reaction_5) ~ "Other",
-      TRUE ~ NA_character_
-    )
+    organ_system_1 = classify_reaction(reaction_1),
+    organ_system_2 = classify_reaction(reaction_2),
+    organ_system_3 = classify_reaction(reaction_3),
+    organ_system_4 = classify_reaction(reaction_4),
+    organ_system_5 = classify_reaction(reaction_5)
   )
 
 # Check the new columns
 head(ici_data_final)
 
+```
+Now, let us split the outcomes column.
+
+```{r}
+library(tidyr)
+
+ici_data_final <- ici_data_final %>%
+  separate(outcomes, into = paste0("outcome_", 1:2), sep = ";", remove = FALSE, extra = "drop")
+
+# If outcome is died, removing other outcomes for that report
+ici_data_final$outcome_1[!is.na(ici_data_final$outcome_1) & ici_data_final$outcome_2 == "Died"] <- NA
+ici_data_final$outcome_2[!is.na(ici_data_final$outcome_2) & ici_data_final$outcome_1 == "Died"] <- NA
+
+#If outcome is hospitalized, removing other outcomes for that report
+ici_data_final$outcome_1[!is.na(ici_data_final$outcome_1) & ici_data_final$outcome_2 == "Hospitalized"] <- NA
+ici_data_final$outcome_2[!is.na(ici_data_final$outcome_2) & ici_data_final$outcome_1 == "Hospitalized"] <- NA
+
+#If outcome is life threatening, removing other outcomes for that report
+ici_data_final$outcome_1[!is.na(ici_data_final$outcome_1) & ici_data_final$outcome_2 == "Life Threatening"] <- NA
+ici_data_final$outcome_2[!is.na(ici_data_final$outcome_2) & ici_data_final$outcome_1 == "Life Threatening"] <- NA
+
+#If outcome is disabled, removing other outcomes for that report
+ici_data_final$outcome_1[!is.na(ici_data_final$outcome_1) & ici_data_final$outcome_2 == "Disabled"] <- NA
+ici_data_final$outcome_2[!is.na(ici_data_final$outcome_2) & ici_data_final$outcome_1 == "Disabled"] <- NA
+
+#Merge the columns
+ici_data_final$outcomes <- coalesce(ici_data_final$outcome_1, ici_data_final$outcome_2)  # Merge outcome_1 and outcome_2
+ici_data_final$outcome_1 <- NULL  # Remove outcome_1 column
+ici_data_final$outcome_2 <- NULL  # Remove outcome_2 column
+
+# View the result
+View(ici_data_final)
 
 ```
 
@@ -256,5 +294,54 @@ Finally, we save the clean data as RDS file.
 ```{r}
 save_data_location <- here::here("data","processed-data","processeddata.rds")
 saveRDS(processeddata, file = save_data_location)
+```
+
+
+Since we will need the number of reactions other than irAEs for the further analysis, we summarize that information here.
+
+```{r}
+glimpse(ici_data_non_irae)
+```
+
+First, let us split the reactions column
+```{r}
+library(tidyr)
+
+ici_data_non_irae <- ici_data_non_irae %>%
+  separate(reactions, into = paste0("reaction_", 1:15), sep = ";", remove = FALSE, extra = "drop")
+
+# View the result
+View(ici_data_non_irae)
+
+reaction_columns <- paste0("reaction_", 1:15)
+```
+
+We remove any duplicates.
+```{r}
+duplicates1 <- ici_data_non_irae %>%
+  group_by(suspect_product_active_ingredients, sex, patient_age, patient_weight, reactions, initial_fda_received_date, country_where_event_occurred) %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+# Display the duplicates
+print(duplicates1)
+```
+
+We see multiple duplicates. Let us remove them.
+```{r}
+ici_data_clean_non_irae = ici_data_non_irae %>%
+  distinct(suspect_product_active_ingredients, sex, patient_age, patient_weight, reactions, initial_fda_received_date, country_where_event_occurred, .keep_all = TRUE)
+
+View(ici_data_clean_non_irae)
+```
+
+We will need this data in the disproportionality analysis.
+
+We save this data as well.
+
+```{r}
+processeddata1 = ici_data_clean_non_irae
+save_data_location <- here::here("data","processed-data","processeddata1.rds")
+saveRDS(processeddata1, file = save_data_location)
 ```
 

@@ -279,13 +279,18 @@ Attaching package: 'janitor'</code></pre>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"pancreatitis"</span>, <span class="st">"myositis"</span>, <span class="st">"uveitis"</span>, <span class="st">"episcleritis"</span>, <span class="st">"nephritis"</span>, <span class="st">"peripheral neuropathy"</span>, <span class="st">"myelitis"</span>, <span class="st">"encephalitis"</span>, <span class="st">"erythema"</span>, <span class="st">"autoimmune"</span>, <span class="st">"psoriasis"</span>, <span class="st">"adrenal"</span>, <span class="st">"adrenitis"</span>, <span class="st">"hypercortisolism"</span>, <span class="st">"hypocortisolism"</span> ,<span class="st">"hyperparathyroidism"</span>, <span class="st">"hypoparathyroidism"</span>, <span class="st">"hypogonadism"</span>, <span class="st">"thyroiditis"</span>, <span class="st">"graves"</span>, <span class="st">"thyrotoxicosis"</span>, <span class="st">"enterocolitis"</span>, <span class="st">"ileitis"</span>, <span class="st">"ileocolitis"</span>, <span class="st">"myasthenia"</span>, <span class="st">"neuritis"</span>, <span class="st">"arthritis"</span>, <span class="st">"lupus"</span>, <span class="st">"sarcoidosis"</span>, <span class="st">"vasculitis"</span>, <span class="st">"immune"</span></span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>ici_data_subset <span class="ot">&lt;-</span> ici_data1 <span class="sc">%&gt;%</span></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(<span class="fu">tolower</span>(reactions), <span class="fu">paste</span>(<span class="fu">tolower</span>(reactions_of_interest), <span class="at">collapse =</span> <span class="st">"|"</span>)))</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="co"># View the subset</span></span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(ici_data_subset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co">#Reactions with irAES</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>ici_data_subset <span class="ot">&lt;-</span> ici_data1 <span class="sc">%&gt;%</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(<span class="fu">tolower</span>(reactions), <span class="fu">paste</span>(<span class="fu">tolower</span>(reactions_of_interest), <span class="at">collapse =</span> <span class="st">"|"</span>)))</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="co">#Reactions with irAEs</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>ici_data_non_irae <span class="ot">&lt;-</span> ici_data1 <span class="sc">%&gt;%</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_detect</span>(<span class="fu">tolower</span>(reactions), <span class="fu">paste</span>(<span class="fu">tolower</span>(reactions_of_interest), <span class="at">collapse =</span> <span class="st">"|"</span>)))</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="co"># View the subset</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(ici_data_subset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We have 368 reactions. The next step is to characterize and categorize the irAEs. The first step is to split the reaction column, and keep only the irAEs.</p>
+<p>We have 369 reactions. The next step is to characterize and categorize the irAEs. The first step is to split the reaction column, and keep only the irAEs.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -325,87 +330,98 @@ Attaching package: 'janitor'</code></pre>
 <span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>ici_data_cleaned <span class="ot">=</span> ici_data_split <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">where</span>( <span class="sc">~</span> <span class="sc">!</span><span class="fu">all</span>(<span class="fu">is.na</span>(.))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The next step is to code these reactions using MedDRA Preferred Terms (PTs), which is a distinct descriptor (single medical concept) for a symptom, sign, disease diagnosis, therapeutic indication, investigation, surgical or medical procedure, and medical social or family history characteristic. After going through the list of reactions, I found that the reactions are already in PTs.</p>
+<p>The next step is to remove any duplicates. We will remove reports that have identical age, weight, FDA received date, country of occurrence, suspected active ingredient, and reported reaction.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find duplicates based on specified columns</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>duplicates <span class="ot">&lt;-</span> ici_data_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(suspect_product_active_ingredients, sex, patient_age, patient_weight, reactions, initial_fda_received_date, country_where_event_occurred) <span class="sc">%&gt;%</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>() <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the duplicates</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(duplicates)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 29
+   case_id suspect_product_names suspect_product_acti…¹ reason_for_use reactions
+     &lt;dbl&gt; &lt;chr&gt;                 &lt;chr&gt;                  &lt;chr&gt;          &lt;chr&gt;    
+1 22640948 -                     Nivolumab              Bladder Cancer Immune-M…
+2 22640919 -                     Nivolumab              Bladder Cancer Immune-M…
+3 22640881 -                     Nivolumab              Bladder Cancer Immune-M…
+4 22637012 -                     Nivolumab              Bladder Cancer Immune-M…
+5 22636896 -                     Nivolumab              Bladder Cancer Immune-M…
+# ℹ abbreviated name: ¹​suspect_product_active_ingredients
+# ℹ 24 more variables: reaction_1 &lt;chr&gt;, reaction_2 &lt;chr&gt;, reaction_3 &lt;chr&gt;,
+#   reaction_4 &lt;chr&gt;, reaction_5 &lt;chr&gt;, serious &lt;chr&gt;, outcomes &lt;chr&gt;,
+#   sex &lt;chr&gt;, event_date &lt;chr&gt;, latest_fda_received_date &lt;chr&gt;,
+#   case_priority &lt;chr&gt;, patient_age &lt;chr&gt;, patient_weight &lt;chr&gt;, sender &lt;chr&gt;,
+#   reporter_type &lt;chr&gt;, report_source &lt;chr&gt;, concomitant_product_names &lt;chr&gt;,
+#   latest_manufacturer_received_date &lt;chr&gt;, initial_fda_received_date &lt;chr&gt;, …</code></pre>
+</div>
+</div>
+<p>We see that there are 4 duplicates of 1 case. We remove these.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>ici_data_cleaned <span class="ot">=</span> ici_data_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(suspect_product_active_ingredients, sex, patient_age, patient_weight, reactions, initial_fda_received_date, country_where_event_occurred, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Now, the next step is to remove columns that are not required.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ici_data_final <span class="ot">=</span> ici_data_cleaned <span class="sc">%&gt;%</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>reactions)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>ici_data_final <span class="ot">=</span> ici_data_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>reactions)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now, we convert the patient age data to numeric.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>ici_data_final <span class="ot">&lt;-</span> ici_data_final <span class="sc">%&gt;%</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">patient_age =</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">"[^0-9]"</span>, <span class="st">""</span>, patient_age)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>ici_data_final <span class="ot">&lt;-</span> ici_data_final <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">patient_age =</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">"[^0-9]"</span>, <span class="st">""</span>, patient_age)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let us classify the countries into US and Outside US</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>ici_data_final <span class="ot">&lt;-</span> ici_data_final <span class="sc">%&gt;%</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">country_where_event_occurred =</span> <span class="fu">ifelse</span>(country_where_event_occurred <span class="sc">!=</span> <span class="st">"US"</span>, <span class="st">"Outside US"</span>, country_where_event_occurred))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>ici_data_final <span class="ot">&lt;-</span> ici_data_final <span class="sc">%&gt;%</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">country_where_event_occurred =</span> <span class="fu">case_when</span>(</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    country_where_event_occurred <span class="sc">==</span> <span class="st">"US"</span> <span class="sc">~</span> <span class="st">"US"</span>,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    country_where_event_occurred <span class="sc">!=</span> <span class="st">"US"</span> <span class="sc">&amp;</span> country_where_event_occurred <span class="sc">!=</span> <span class="st">"Not Specified"</span> <span class="sc">~</span> <span class="st">"Outside US"</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> country_where_event_occurred</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>The next step is to classify the irAEs by the System Organ Class (SOC) according to MedDRA.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define lists of reaction keywords for each organ system</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>dermatological_reactions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"rash"</span>, <span class="st">"pruritus"</span>, <span class="st">"dermatitis"</span>, <span class="st">"psoriasis"</span>)</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>gastrointestinal_reactions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"colitis"</span>, <span class="st">"hepatitis"</span>, <span class="st">"pancreatitis"</span>, <span class="st">"enterocolitis"</span>, <span class="st">"ileitis"</span>, <span class="st">"ileocolitis"</span>)</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>neurological_reactions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"myasthenia"</span>, <span class="st">"graves"</span>, <span class="st">"myelitis"</span>, <span class="st">"encephalitis"</span>, <span class="st">"neuritis"</span>, <span class="st">"peripheral neuropathy"</span>)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>endocrinological_reactions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"hyperthyroidism"</span>, <span class="st">"hypothyroidism"</span>, <span class="st">"thyroiditis"</span>, <span class="st">"thyrotoxicosis"</span>, <span class="st">"adrenitis"</span>, <span class="st">"adrenal"</span>, <span class="st">"hypogonadism"</span>, <span class="st">"hyperparathyroidism"</span>, <span class="st">"hypercortisolism"</span>, <span class="st">"hypophysitis"</span>, <span class="st">"hypoparathyroidism"</span>, <span class="st">"hypocortisolism"</span>, <span class="st">"autoimmune diabetes"</span>)</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>cardiovascular_reactions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"myocarditis"</span>, <span class="st">"pericarditis"</span>)</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming your data is stored in 'ici_data_final' and reactions are in reaction_1 to reaction_5</span></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>ici_data_final <span class="ot">&lt;-</span> ici_data_final <span class="sc">%&gt;%</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">organ_system_1 =</span> <span class="fu">case_when</span>(</span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_1) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(dermatological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_1, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Skin"</span>,</span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_1) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(gastrointestinal_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_1, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Gastrointestinal"</span>,</span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_1) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(neurological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_1, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Neurological"</span>,</span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_1) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(endocrinological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_1, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Endocrinological"</span>,</span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_1) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(cardiovascular_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_1, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Cardiovascular"</span>,</span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_1) <span class="sc">~</span> <span class="st">"Other"</span>,  <span class="co"># If not NA and no match, classify as Other</span></span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span>  <span class="co"># If NA, keep as NA</span></span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">organ_system_2 =</span> <span class="fu">case_when</span>(</span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_2) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(dermatological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_2, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Skin"</span>,</span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_2) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(gastrointestinal_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_2, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Gastrointestinal"</span>,</span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_2) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(neurological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_2, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Neurological"</span>,</span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_2) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(endocrinological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_2, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Endocrinological"</span>,</span>
-<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_2) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(cardiovascular_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_2, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Cardiovascular"</span>,</span>
-<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_2) <span class="sc">~</span> <span class="st">"Other"</span>,</span>
-<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span></span>
-<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">organ_system_3 =</span> <span class="fu">case_when</span>(</span>
-<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_3) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(dermatological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_3, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Skin"</span>,</span>
-<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_3) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(gastrointestinal_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_3, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Gastrointestinal"</span>,</span>
-<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_3) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(neurological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_3, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Neurological"</span>,</span>
-<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_3) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(endocrinological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_3, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Endocrinological"</span>,</span>
-<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_3) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(cardiovascular_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_3, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Cardiovascular"</span>,</span>
-<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_3) <span class="sc">~</span> <span class="st">"Other"</span>,</span>
-<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span></span>
-<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">organ_system_4 =</span> <span class="fu">case_when</span>(</span>
-<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_4) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(dermatological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_4, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Skin"</span>,</span>
-<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_4) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(gastrointestinal_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_4, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Gastrointestinal"</span>,</span>
-<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_4) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(neurological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_4, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Neurological"</span>,</span>
-<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_4) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(endocrinological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_4, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Endocrinological"</span>,</span>
-<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_4) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(cardiovascular_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_4, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Cardiovascular"</span>,</span>
-<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_4) <span class="sc">~</span> <span class="st">"Other"</span>,</span>
-<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span></span>
-<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">organ_system_5 =</span> <span class="fu">case_when</span>(</span>
-<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_5) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(dermatological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_5, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Skin"</span>,</span>
-<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_5) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(gastrointestinal_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_5, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Gastrointestinal"</span>,</span>
-<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_5) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(neurological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_5, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Neurological"</span>,</span>
-<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_5) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(endocrinological_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_5, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Endocrinological"</span>,</span>
-<span id="cb26-58"><a href="#cb26-58" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_5) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(cardiovascular_reactions, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction_5, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Cardiovascular"</span>,</span>
-<span id="cb26-59"><a href="#cb26-59" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(reaction_5) <span class="sc">~</span> <span class="st">"Other"</span>,</span>
-<span id="cb26-60"><a href="#cb26-60" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span></span>
-<span id="cb26-61"><a href="#cb26-61" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb26-62"><a href="#cb26-62" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb26-63"><a href="#cb26-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-64"><a href="#cb26-64" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the new columns</span></span>
-<span id="cb26-65"><a href="#cb26-65" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ici_data_final)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define lists of reaction keywords for each organ system</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>Skin_and_subcutaneous_tissue_disorders <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"rash"</span>, <span class="st">"pruritus"</span>, <span class="st">"dermatitis"</span>, <span class="st">"psoriasis"</span>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>Gastrointestinal_disorders <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"colitis"</span>, <span class="st">"hepatitis"</span>, <span class="st">"pancreatitis"</span>, <span class="st">"enterocolitis"</span>, <span class="st">"ileitis"</span>, <span class="st">"ileocolitis"</span>)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>Nervous_system_disorders <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"myasthenia"</span>, <span class="st">"graves"</span>, <span class="st">"myelitis"</span>, <span class="st">"encephalitis"</span>, <span class="st">"neuritis"</span>, <span class="st">"peripheral neuropathy"</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>Endocrine_disorders <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"hyperthyroidism"</span>, <span class="st">"hypothyroidism"</span>, <span class="st">"thyroiditis"</span>, <span class="st">"thyrotoxicosis"</span>, <span class="st">"adrenitis"</span>, <span class="st">"adrenal"</span>, <span class="st">"hypogonadism"</span>, <span class="st">"hyperparathyroidism"</span>, <span class="st">"hypercortisolism"</span>, <span class="st">"hypophysitis"</span>, <span class="st">"hypoparathyroidism"</span>, <span class="st">"hypocortisolism"</span>, <span class="st">"autoimmune diabetes"</span>)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>Cardiac_disorders <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"myocarditis"</span>, <span class="st">"pericarditis"</span>, <span class="st">"myocarditis"</span>)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>Respiratory_thoracic_and_mediastinal_disorders <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"pneumonitis"</span>)</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>Renal_and_urinary_disorders <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"pyelonephritis"</span>, <span class="st">"nephritis"</span>)</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to classify reactions into organ systems</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>classify_reaction <span class="ot">&lt;-</span> <span class="cf">function</span>(reaction) {</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">case_when</span>(</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(reaction) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(Skin_and_subcutaneous_tissue_disorders, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Skin"</span>,</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(reaction) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(Gastrointestinal_disorders, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Gastrointestinal"</span>,</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(reaction) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(Nervous_system_disorders, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Neurological"</span>,</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(reaction) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(Endocrine_disorders, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Endocrinological"</span>,</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(reaction) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(Cardiac_disorders, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Cardiovascular"</span>,</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(reaction) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(Respiratory_thoracic_and_mediastinal_disorders, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Respiratory"</span>,</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(reaction) <span class="sc">&amp;</span> <span class="fu">grepl</span>(<span class="fu">paste</span>(Renal_and_urinary_disorders, <span class="at">collapse =</span> <span class="st">"|"</span>), reaction, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Renal"</span>,</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(reaction) <span class="sc">~</span> <span class="st">"Other"</span>,  <span class="co"># If not NA and no match, classify as Other</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span>  <span class="co"># If NA, keep as NA</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply the function to each reaction column</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>ici_data_final <span class="ot">&lt;-</span> ici_data_final <span class="sc">%&gt;%</span></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">organ_system_1 =</span> <span class="fu">classify_reaction</span>(reaction_1),</span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">organ_system_2 =</span> <span class="fu">classify_reaction</span>(reaction_2),</span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">organ_system_3 =</span> <span class="fu">classify_reaction</span>(reaction_3),</span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">organ_system_4 =</span> <span class="fu">classify_reaction</span>(reaction_4),</span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">organ_system_5 =</span> <span class="fu">classify_reaction</span>(reaction_5)</span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the new columns</span></span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ici_data_final)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 33
   case_id suspect_product_names suspect_product_acti…¹ reason_for_use reaction_1
@@ -425,18 +441,145 @@ Attaching package: 'janitor'</code></pre>
 #   latest_manufacturer_received_date &lt;chr&gt;, initial_fda_received_date &lt;chr&gt;, …</code></pre>
 </div>
 </div>
+<p>Now, let us split the outcomes column.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>ici_data_final <span class="ot">&lt;-</span> ici_data_final <span class="sc">%&gt;%</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(outcomes, <span class="at">into =</span> <span class="fu">paste0</span>(<span class="st">"outcome_"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>), <span class="at">sep =</span> <span class="st">";"</span>, <span class="at">remove =</span> <span class="cn">FALSE</span>, <span class="at">extra =</span> <span class="st">"drop"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Expected 2 pieces. Missing pieces filled with `NA` in 235 rows [1, 2, 3, 5, 6,
+7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, ...].</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># If outcome is died, removing other outcomes for that report</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>ici_data_final<span class="sc">$</span>outcome_1[<span class="sc">!</span><span class="fu">is.na</span>(ici_data_final<span class="sc">$</span>outcome_1) <span class="sc">&amp;</span> ici_data_final<span class="sc">$</span>outcome_2 <span class="sc">==</span> <span class="st">"Died"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>ici_data_final<span class="sc">$</span>outcome_2[<span class="sc">!</span><span class="fu">is.na</span>(ici_data_final<span class="sc">$</span>outcome_2) <span class="sc">&amp;</span> ici_data_final<span class="sc">$</span>outcome_1 <span class="sc">==</span> <span class="st">"Died"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co">#If outcome is hospitalized, removing other outcomes for that report</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>ici_data_final<span class="sc">$</span>outcome_1[<span class="sc">!</span><span class="fu">is.na</span>(ici_data_final<span class="sc">$</span>outcome_1) <span class="sc">&amp;</span> ici_data_final<span class="sc">$</span>outcome_2 <span class="sc">==</span> <span class="st">"Hospitalized"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>ici_data_final<span class="sc">$</span>outcome_2[<span class="sc">!</span><span class="fu">is.na</span>(ici_data_final<span class="sc">$</span>outcome_2) <span class="sc">&amp;</span> ici_data_final<span class="sc">$</span>outcome_1 <span class="sc">==</span> <span class="st">"Hospitalized"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="co">#If outcome is life threatening, removing other outcomes for that report</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>ici_data_final<span class="sc">$</span>outcome_1[<span class="sc">!</span><span class="fu">is.na</span>(ici_data_final<span class="sc">$</span>outcome_1) <span class="sc">&amp;</span> ici_data_final<span class="sc">$</span>outcome_2 <span class="sc">==</span> <span class="st">"Life Threatening"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>ici_data_final<span class="sc">$</span>outcome_2[<span class="sc">!</span><span class="fu">is.na</span>(ici_data_final<span class="sc">$</span>outcome_2) <span class="sc">&amp;</span> ici_data_final<span class="sc">$</span>outcome_1 <span class="sc">==</span> <span class="st">"Life Threatening"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="co">#If outcome is disabled, removing other outcomes for that report</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>ici_data_final<span class="sc">$</span>outcome_1[<span class="sc">!</span><span class="fu">is.na</span>(ici_data_final<span class="sc">$</span>outcome_1) <span class="sc">&amp;</span> ici_data_final<span class="sc">$</span>outcome_2 <span class="sc">==</span> <span class="st">"Disabled"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>ici_data_final<span class="sc">$</span>outcome_2[<span class="sc">!</span><span class="fu">is.na</span>(ici_data_final<span class="sc">$</span>outcome_2) <span class="sc">&amp;</span> ici_data_final<span class="sc">$</span>outcome_1 <span class="sc">==</span> <span class="st">"Disabled"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a><span class="co">#Merge the columns</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>ici_data_final<span class="sc">$</span>outcomes <span class="ot">&lt;-</span> <span class="fu">coalesce</span>(ici_data_final<span class="sc">$</span>outcome_1, ici_data_final<span class="sc">$</span>outcome_2)  <span class="co"># Merge outcome_1 and outcome_2</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>ici_data_final<span class="sc">$</span>outcome_1 <span class="ot">&lt;-</span> <span class="cn">NULL</span>  <span class="co"># Remove outcome_1 column</span></span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>ici_data_final<span class="sc">$</span>outcome_2 <span class="ot">&lt;-</span> <span class="cn">NULL</span>  <span class="co"># Remove outcome_2 column</span></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a><span class="co"># View the result</span></span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(ici_data_final)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>This is our final data. Next, we move on to exploratory data analysis.</p>
 <p>Let’s assign at the end to some final variable, this makes it easier to add further cleaning steps above.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>processeddata <span class="ot">=</span> ici_data_final</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>processeddata <span class="ot">=</span> ici_data_final</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="save-data" class="level1">
 <h1>Save data</h1>
 <p>Finally, we save the clean data as RDS file.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>save_data_location <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>,<span class="st">"processed-data"</span>,<span class="st">"processeddata.rds"</span>)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(processeddata, <span class="at">file =</span> save_data_location)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>save_data_location <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>,<span class="st">"processed-data"</span>,<span class="st">"processeddata.rds"</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(processeddata, <span class="at">file =</span> save_data_location)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Since we will need the number of reactions other than irAEs for the further analysis, we summarize that information here.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(ici_data_non_irae)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 1,029
+Columns: 24
+$ case_id                            &lt;dbl&gt; 24792119, 24551285, 24416276, 24224…
+$ suspect_product_names              &lt;chr&gt; "Tecentriq", "Tecentriq", "Tecentri…
+$ suspect_product_active_ingredients &lt;chr&gt; "Atezolizumab", "Atezolizumab", "At…
+$ reason_for_use                     &lt;chr&gt; "Metastatic Carcinoma Of The Bladde…
+$ reactions                          &lt;chr&gt; "Death;Off Label Use", "Haemoglobin…
+$ serious                            &lt;chr&gt; "Serious", "Serious", "Serious", "S…
+$ outcomes                           &lt;chr&gt; "Died", "Hospitalized", "Died", "Di…
+$ sex                                &lt;chr&gt; "Male", "Male", "Male", "Male", "No…
+$ event_date                         &lt;chr&gt; "-", "-", "04-AUG-2024", "-", "-", …
+$ latest_fda_received_date           &lt;chr&gt; "31-DEC-2024", "25-OCT-2024", "09-O…
+$ case_priority                      &lt;chr&gt; "Expedited", "Expedited", "Expedite…
+$ patient_age                        &lt;chr&gt; "81 YR", "69 YR", "53 YR", "86 YR",…
+$ patient_weight                     &lt;chr&gt; "Not Specified", "Not Specified", "…
+$ sender                             &lt;chr&gt; "Roche", "Roche", "Roche", "Roche",…
+$ reporter_type                      &lt;chr&gt; "Healthcare Professional", "Consume…
+$ report_source                      &lt;chr&gt; "Not Specified", "Not Specified", "…
+$ concomitant_product_names          &lt;chr&gt; "-", "-", "-", "-", "-", "-", "-", …
+$ latest_manufacturer_received_date  &lt;chr&gt; "28-DEC-2024", "22-OCT-2024", "27-S…
+$ initial_fda_received_date          &lt;chr&gt; "31-DEC-2024", "25-OCT-2024", "09-O…
+$ country_where_event_occurred       &lt;chr&gt; "IN", "IN", "IN", "IN", "Not Specif…
+$ reported_to_manufacturer           &lt;chr&gt; "Not Specified", "Not Specified", "…
+$ manufacturer_control_number        &lt;chr&gt; "IN-ROCHE-10000062643", "IN-ROCHE-1…
+$ literature_reference               &lt;chr&gt; "-", "-", "-", "-", "-", "-", "-", …
+$ compounded_flag                    &lt;chr&gt; "-", "-", "-", "-", "-", "-", "-", …</code></pre>
+</div>
+</div>
+<p>First, let us split the reactions column</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>ici_data_non_irae <span class="ot">&lt;-</span> ici_data_non_irae <span class="sc">%&gt;%</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(reactions, <span class="at">into =</span> <span class="fu">paste0</span>(<span class="st">"reaction_"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>), <span class="at">sep =</span> <span class="st">";"</span>, <span class="at">remove =</span> <span class="cn">FALSE</span>, <span class="at">extra =</span> <span class="st">"drop"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Expected 15 pieces. Missing pieces filled with `NA` in 1028 rows [1, 2, 3, 4,
+5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View the result</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(ici_data_non_irae)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>reaction_columns <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"reaction_"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We remove any duplicates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>duplicates1 <span class="ot">&lt;-</span> ici_data_non_irae <span class="sc">%&gt;%</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(suspect_product_active_ingredients, sex, patient_age, patient_weight, reactions, initial_fda_received_date, country_where_event_occurred) <span class="sc">%&gt;%</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>() <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the duplicates</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(duplicates1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 31 × 39
+   case_id suspect_product_names suspect_product_acti…¹ reason_for_use reactions
+     &lt;dbl&gt; &lt;chr&gt;                 &lt;chr&gt;                  &lt;chr&gt;          &lt;chr&gt;    
+ 1  2.40e7 Tecentriq             Atezolizumab           Bladder Cancer Off Labe…
+ 2  2.40e7 Tecentriq             Atezolizumab           Bladder Cancer Off Labe…
+ 3  2.26e7 Tecentriq             Atezolizumab           Bladder Cancer No Adver…
+ 4  2.26e7 Tecentriq             Atezolizumab           Bladder Cancer No Adver…
+ 5  1.44e7 Tecentriq             Atezolizumab           Bladder Cancer Blood Cr…
+ 6  1.44e7 Tecentriq             Atezolizumab           Bladder Cancer Blood Cr…
+ 7  1.33e7 Tecentriq             Atezolizumab           Bladder Cance… Dyspnoea 
+ 8  1.33e7 Tecentriq             Atezolizumab           Bladder Cancer Dyspnoea 
+ 9  1.27e7 Tecentriq             Atezolizumab           Bladder Cancer Purpura  
+10  1.27e7 Tecentriq             Atezolizumab           Bladder Cancer Purpura  
+# ℹ 21 more rows
+# ℹ abbreviated name: ¹​suspect_product_active_ingredients
+# ℹ 34 more variables: reaction_1 &lt;chr&gt;, reaction_2 &lt;chr&gt;, reaction_3 &lt;chr&gt;,
+#   reaction_4 &lt;chr&gt;, reaction_5 &lt;chr&gt;, reaction_6 &lt;chr&gt;, reaction_7 &lt;chr&gt;,
+#   reaction_8 &lt;chr&gt;, reaction_9 &lt;chr&gt;, reaction_10 &lt;chr&gt;, reaction_11 &lt;chr&gt;,
+#   reaction_12 &lt;chr&gt;, reaction_13 &lt;chr&gt;, reaction_14 &lt;chr&gt;, reaction_15 &lt;chr&gt;,
+#   serious &lt;chr&gt;, outcomes &lt;chr&gt;, sex &lt;chr&gt;, event_date &lt;chr&gt;, …</code></pre>
+</div>
+</div>
+<p>We see multiple duplicates. Let us remove them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>ici_data_clean_non_irae <span class="ot">=</span> ici_data_non_irae <span class="sc">%&gt;%</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(suspect_product_active_ingredients, sex, patient_age, patient_weight, reactions, initial_fda_received_date, country_where_event_occurred, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(ici_data_clean_non_irae)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We will need this data in the disproportionality analysis.</p>
+<p>We save this data as well.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>processeddata1 <span class="ot">=</span> ici_data_clean_non_irae</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>save_data_location <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>,<span class="st">"processed-data"</span>,<span class="st">"processeddata1.rds"</span>)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(processeddata1, <span class="at">file =</span> save_data_location)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 

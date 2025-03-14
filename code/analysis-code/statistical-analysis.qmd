@@ -1,0 +1,1025 @@
+---
+title: "statistical-analysis"
+format: html
+---
+
+This file contains details of the statistical analysis.
+
+After the exploratory data analysis and the descriptive statistics, the next step is to run a disproportionality analysis. The first step is to assess the adverse events in comparison to the entire FAERS database.
+
+To assess this, we need the following information: 
+a = Number of irAEs with 1 ICI (e.g. atezolizumab) 
+b = Number of reactions other than irAEs with atezolizumab
+c = Number of irAEs with drugs other than atezolizumab 
+d = Number of reactions other than irAEs with drugs other than atzeolizumab.
+
+The same procedure would be repeated for the other 3 ICIs.
+
+First, we load the data.
+
+```{r}
+#Path to data. Note the use of the here() package and not absolute paths
+data_location <- here::here("data","processed-data","processeddata.rds")
+#load data
+mydata <- readRDS(data_location)
+```
+
+First we find number of irAEs with each ICI.
+
+```{r}
+# Load necessary library
+library(dplyr)
+
+# List of drugs to analyze
+drugs <- c("Atezolizumab", "Avelumab", "Nivolumab", "Pembrolizumab")
+
+# Function to count total reactions for a given drug
+count_total_reactions <- function(data, drug) {
+  # Filter rows for the drug
+  drug_data <- data %>%
+    filter(grepl(drug, suspect_product_active_ingredients, ignore.case = TRUE))
+  
+  # Combine reaction columns into a single vector
+  all_reactions <- c(
+    drug_data$reaction_1,
+    drug_data$reaction_2,
+    drug_data$reaction_3,
+    drug_data$reaction_4,
+    drug_data$reaction_5
+  )
+  
+  # Remove NA values
+  all_reactions <- all_reactions[!is.na(all_reactions)]
+  
+  # Count total reactions
+  total_reactions <- length(all_reactions)
+  
+  # Return total reactions
+  return(total_reactions)
+}
+
+# Count total reactions for each drug
+results <- sapply(drugs, function(drug) count_total_reactions(mydata, drug))
+
+# Print the results
+results_irae <- data.frame(Drug = drugs, Total_Reactions = results)
+print(results_irae)
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+Now, we do the same for reactions other than irAEs. We created and saved this data when we processed it.
+
+Load the data
+
+```{r}
+#Path to data. Note the use of the here() package and not absolute paths
+data_location <- here::here("data","processed-data","processeddata1.rds")
+#load data
+mydata1 <- readRDS(data_location)
+```
+
+Now we find number of reactions other than irAEs with each ICI.
+
+```{r}
+# Load necessary library
+library(dplyr)
+
+# List of drugs to analyze
+drugs <- c("Atezolizumab", "Avelumab", "Nivolumab", "Pembrolizumab")
+
+# Function to count total reactions for a given drug
+count_total_reactions1 <- function(data, drug) {
+  # Filter rows for the drug
+  drug_data1 <- data %>%
+    filter(grepl(drug, suspect_product_active_ingredients, ignore.case = TRUE))
+  
+  # Combine reaction columns into a single vector
+  all_reactions1 <- c(
+    drug_data1$reaction_1,
+    drug_data1$reaction_2,
+    drug_data1$reaction_3,
+    drug_data1$reaction_4,
+    drug_data1$reaction_5
+  )
+  
+  # Remove NA values
+  all_reactions1 <- all_reactions1[!is.na(all_reactions1)]
+  
+  # Count total reactions
+  total_reactions1 <- length(all_reactions1)
+  
+  # Return total reactions
+  return(total_reactions1)
+}
+
+# Count total reactions for each drug
+results1 <- sapply(drugs, function(drug) count_total_reactions1(mydata1, drug))
+
+# Print the results
+results_non_irae <- data.frame(Drug = drugs, Total_Reactions = results1)
+print(results_non_irae)
+```
+```{r}
+# Load necessary library
+library(dplyr)
+
+# Define the list of drugs
+drugs <- c("Atezolizumab", "Avelumab", "Nivolumab", "Pembrolizumab")
+
+# Initialize an empty data frame to store results for All irAEs
+results_table_all_iraes <- data.frame()
+
+# Loop through each drug and perform the analysis for all irAEs
+for (drug_of_interest in drugs) {
+  
+  # Extract a, b, c, d for the current drug (for all irAEs combined)
+  a <- results_irae %>% filter(Drug == drug_of_interest) %>% summarise(sum(Total_Reactions)) %>% pull()
+  b <- results_non_irae %>% filter(Drug == drug_of_interest) %>% summarise(sum(Total_Reactions)) %>% pull()
+  c <- results_irae %>% filter(Drug != drug_of_interest) %>% summarise(sum(Total_Reactions)) %>% pull()
+  d <- results_non_irae %>% filter(Drug != drug_of_interest) %>% summarise(sum(Total_Reactions)) %>% pull()
+
+  # Step 1: Calculate PRR (Proportional Reporting Ratio)
+  prr <- (a / (a + b)) / (c / (c + d))
+
+  # Step 2: Calculate the 95% confidence interval for PRR
+  se_log_prr <- sqrt((1 / a) - (1 / (a + b)) + (1 / c) - (1 / (c + d)))
+  prr_lower <- exp(log(prr) - 1.96 * se_log_prr)
+  prr_upper <- exp(log(prr) + 1.96 * se_log_prr)
+
+  # Step 3: Calculate ROR (Reporting Odds Ratio)
+  ror <- (a / b) / (c / d)
+
+  # Step 4: Calculate the 95% confidence interval for ROR
+  se_log_ror <- sqrt((1 / a) + (1 / b) + (1 / c) + (1 / d))
+  ror_lower <- exp(log(ror) - 1.96 * se_log_ror)
+  ror_upper <- exp(log(ror) + 1.96 * se_log_ror)
+
+  # Step 5: Calculate IC (Information Component)
+  IC <- log2((a * (a + b + c + d)) / ((a + c) * (a + b)))
+
+  # Step 6: Calculate the variance of IC
+  var_IC <- (1 / log(2)^2) * (1 / a - 1 / (a + b) - 1 / (a + c) + 1 / (a + b + c + d))
+
+  # Step 7: Calculate the 95% confidence interval for IC
+  IC_lower <- IC - 1.96 * sqrt(var_IC)
+  IC_upper <- IC + 1.96 * sqrt(var_IC)
+
+  # Store results for the current drug (All irAEs)
+  results_table_all_iraes <- rbind(results_table_all_iraes, data.frame(
+    Drug = drug_of_interest,
+    Reaction = "All irAEs",
+    PRR = paste0(round(prr, 2), " (", round(prr_lower, 2), ", ", round(prr_upper, 2), ")"),
+    ROR = paste0(round(ror, 2), " (", round(ror_lower, 2), ", ", round(ror_upper, 2), ")"),
+    IC = paste0(round(IC, 2), " (", round(IC_lower, 2), ", ", round(IC_upper, 2), ")")
+  ))
+}
+
+# Print the results table for All irAEs
+print(results_table_all_iraes)
+```
+The next step is to assess the safety signal for individual irAEs.
+The commonly reported irAEs in clinical trials are rash, pruritus, colitis, hepatitis, hyperthyroidism, hypothyroidism, and nephritis.
+We conduct disproportionality analysis for each of these.
+
+We compare each of these reactions to all other reactions.
+First, we assess the number of 'rash' reactions reported with all the ICIs.
+
+```{r}
+ # Filter for the specific drugs and count 'Rash' reactions
+rash_counts <- mydata %>%
+     filter(suspect_product_active_ingredients %in% c("Atezolizumab", "Avelumab", "Pembrolizumab", "Nivolumab")) %>%
+     rowwise() %>%
+     mutate(Rash = sum(c_across(starts_with("reaction_")) == "Rash", na.rm = TRUE)) %>%
+     group_by(suspect_product_active_ingredients) %>%
+     summarise(Rash_Count = sum(Rash))
+ 
+# Print the result
+print(rash_counts)
+```
+We subtract this number from the irAEs, and add this number to the non-irAEs so as to get the total number of non-'rash' reactions associated with each ICI.
+
+```{r}
+# Ensure the data frames are in the same order
+results_irae <- results_irae %>%
+  arrange(Drug)
+
+rash_counts <- rash_counts %>%
+  arrange(suspect_product_active_ingredients)
+
+# Subtract 'Rash' counts from total reactions
+results_non_rash <- results_irae %>%
+  mutate(
+    Non_Rash_Reactions = Total_Reactions - rash_counts$Rash_Count
+  )
+
+# Print the updated results
+print(results_non_rash)
+
+# Create the new dataset by adding Non_Rash_Reactions to Total_Reactions
+results_other_rash <- data.frame(
+  Drug = results_non_irae$Drug,
+  Total_Reactions = results_non_irae$Total_Reactions + results_non_rash$Non_Rash_Reactions
+)
+
+# Print the new dataset
+print(results_other_rash)
+
+```
+
+We have all our numbers now.
+
+```{r}
+# Load necessary library
+library(dplyr)
+
+# Define the list of drugs
+drugs <- c("Atezolizumab", "Avelumab", "Nivolumab", "Pembrolizumab")
+
+# Initialize an empty data frame to store results for Rash
+results_table_rash <- data.frame()
+
+# Loop through each drug and perform the analysis for Rash
+for (drug_of_interest in drugs) {
+  
+  # Extract a, b, c, d for the current drug (for Rash)
+  a_rash <- rash_counts %>% filter(suspect_product_active_ingredients == drug_of_interest) %>% pull(Rash_Count)
+  b_rash <- results_other_rash %>% filter(Drug == drug_of_interest) %>% pull(Total_Reactions)
+  c_rash <- rash_counts %>% filter(suspect_product_active_ingredients != drug_of_interest) %>% summarise(sum(Rash_Count)) %>% pull()
+  d_rash <- results_other_rash %>% filter(Drug != drug_of_interest) %>% summarise(sum(Total_Reactions)) %>% pull()
+
+  # Step 1: Calculate PRR (Proportional Reporting Ratio)
+  prr <- (a_rash / (a_rash + b_rash)) / (c_rash / (c_rash + d_rash))
+
+  # Step 2: Calculate the 95% confidence interval for PRR
+  se_log_prr <- sqrt((1 / a_rash) - (1 / (a_rash + b_rash)) + (1 / c_rash) - (1 / (c_rash + d_rash)))
+  prr_lower <- exp(log(prr) - 1.96 * se_log_prr)
+  prr_upper <- exp(log(prr) + 1.96 * se_log_prr)
+
+  # Step 3: Calculate ROR (Reporting Odds Ratio)
+  ror <- (a_rash / b_rash) / (c_rash / d_rash)
+
+  # Step 4: Calculate the 95% confidence interval for ROR
+  se_log_ror <- sqrt((1 / a_rash) + (1 / b_rash) + (1 / c_rash) + (1 / d_rash))
+  ror_lower <- exp(log(ror) - 1.96 * se_log_ror)
+  ror_upper <- exp(log(ror) + 1.96 * se_log_ror)
+
+  # Step 5: Calculate IC (Information Component)
+  IC <- log2((a_rash * (a_rash + b_rash + c_rash + d_rash)) / ((a_rash + c_rash) * (a_rash + b_rash)))
+
+  # Step 6: Calculate the variance of IC
+  var_IC <- (1 / log(2)^2) * (1 / a_rash - 1 / (a_rash + b_rash) - 1 / (a_rash + c_rash) + 1 / (a_rash + b_rash + c_rash + d_rash))
+
+  # Step 7: Calculate the 95% confidence interval for IC
+  IC_lower <- IC - 1.96 * sqrt(var_IC)
+  IC_upper <- IC + 1.96 * sqrt(var_IC)
+
+  # Store results for the current drug (Rash)
+  results_table_rash <- rbind(results_table_rash, data.frame(
+    Drug = drug_of_interest,
+    Reaction = "Rash",
+    PRR = paste0(round(prr, 2), " (", round(prr_lower, 2), ", ", round(prr_upper, 2), ")"),
+    ROR = paste0(round(ror, 2), " (", round(ror_lower, 2), ", ", round(ror_upper, 2), ")"),
+    IC = paste0(round(IC, 2), " (", round(IC_lower, 2), ", ", round(IC_upper, 2), ")")
+  ))
+}
+
+# Print the results table for Rash
+print(results_table_rash)
+
+
+```
+
+Now, we conduct the same analysis for pruritus.
+```{r}
+ # Filter for the specific drugs and count 'Pruritus' reactions
+pruritus_counts <- mydata %>%
+     filter(suspect_product_active_ingredients %in% c("Atezolizumab", "Avelumab", "Pembrolizumab", "Nivolumab")) %>%
+     rowwise() %>%
+     mutate(Pruritus = sum(c_across(starts_with("reaction_")) == "Pruritus", na.rm = TRUE)) %>%
+     group_by(suspect_product_active_ingredients) %>%
+     summarise(Pruritus_Count = sum(Pruritus))
+ 
+# Print the result
+print(pruritus_counts)
+```
+
+We subtract this number from the irAEs, and add this number to the non-irAEs so as to get the total number of non-'pruritus' reactions associated with each ICI.
+
+```{r}
+# Ensure the data frames are in the same order
+results_irae <- results_irae %>%
+  arrange(Drug)
+
+pruritus_counts <- pruritus_counts %>%
+  arrange(suspect_product_active_ingredients)
+
+# Subtract 'pruritus' counts from total reactions
+results_non_pruritus <- results_irae %>%
+  mutate(
+    Non_Pruritus_Reactions = Total_Reactions - pruritus_counts$Pruritus_Count
+  )
+
+# Print the updated results
+print(results_non_pruritus)
+
+# Create the new dataset by adding Non_Pruritus_Reactions to Total_Reactions
+results_other_pruritus <- data.frame(
+  Drug = results_non_irae$Drug,
+  Total_Reactions = results_non_irae$Total_Reactions + results_non_pruritus$Non_Pruritus_Reactions
+)
+
+# Print the new dataset
+print(results_other_pruritus)
+
+```
+We now conduct the analysis.
+
+```{r}
+# Load necessary library
+library(dplyr)
+
+# Define the list of drugs
+drugs <- c("Atezolizumab", "Avelumab", "Nivolumab", "Pembrolizumab")
+
+# Initialize an empty data frame to store results for Pruritus
+results_table_pruritus <- data.frame()
+
+# Loop through each drug and perform the analysis for Pruritus
+for (drug_of_interest in drugs) {
+  
+  # Extract a, b, c, d for the current drug (for Pruritus)
+  a_pruritus <- pruritus_counts %>% filter(suspect_product_active_ingredients == drug_of_interest) %>% pull(Pruritus_Count)
+  b_pruritus <- results_other_pruritus %>% filter(Drug == drug_of_interest) %>% pull(Total_Reactions)
+  c_pruritus <- pruritus_counts %>% filter(suspect_product_active_ingredients != drug_of_interest) %>% summarise(sum(Pruritus_Count)) %>% pull()
+  d_pruritus <- results_other_pruritus %>% filter(Drug != drug_of_interest) %>% summarise(sum(Total_Reactions)) %>% pull()
+
+  # Step 1: Calculate PRR (Proportional Reporting Ratio)
+  prr <- (a_pruritus / (a_pruritus + b_pruritus)) / (c_pruritus / (c_pruritus + d_pruritus))
+
+  # Step 2: Calculate the 95% confidence interval for PRR
+  se_log_prr <- sqrt((1 / a_pruritus) - (1 / (a_pruritus + b_pruritus)) + (1 / c_pruritus) - (1 / (c_pruritus + d_pruritus)))
+  prr_lower <- exp(log(prr) - 1.96 * se_log_prr)
+  prr_upper <- exp(log(prr) + 1.96 * se_log_prr)
+
+  # Step 3: Calculate ROR (Reporting Odds Ratio)
+  ror <- (a_pruritus / b_pruritus) / (c_pruritus / d_pruritus)
+
+  # Step 4: Calculate the 95% confidence interval for ROR
+  se_log_ror <- sqrt((1 / a_pruritus) + (1 / b_pruritus) + (1 / c_pruritus) + (1 / d_pruritus))
+  ror_lower <- exp(log(ror) - 1.96 * se_log_ror)
+  ror_upper <- exp(log(ror) + 1.96 * se_log_ror)
+
+  # Step 5: Calculate IC (Information Component)
+  IC <- log2((a_pruritus * (a_pruritus + b_pruritus + c_pruritus + d_pruritus)) / ((a_pruritus + c_pruritus) * (a_pruritus + b_pruritus)))
+
+  # Step 6: Calculate the variance of IC
+  var_IC <- (1 / log(2)^2) * (1 / a_pruritus - 1 / (a_pruritus + b_pruritus) - 1 / (a_pruritus + c_pruritus) + 1 / (a_pruritus + b_pruritus + c_pruritus + d_pruritus))
+
+  # Step 7: Calculate the 95% confidence interval for IC
+  IC_lower <- IC - 1.96 * sqrt(var_IC)
+  IC_upper <- IC + 1.96 * sqrt(var_IC)
+
+  # Store results for the current drug (Pruritus)
+  results_table_pruritus <- rbind(results_table_pruritus, data.frame(
+    Drug = drug_of_interest,
+    Reaction = "Pruritus",
+    PRR = paste0(round(prr, 2), " (", round(prr_lower, 2), ", ", round(prr_upper, 2), ")"),
+    ROR = paste0(round(ror, 2), " (", round(ror_lower, 2), ", ", round(ror_upper, 2), ")"),
+    IC = paste0(round(IC, 2), " (", round(IC_lower, 2), ", ", round(IC_upper, 2), ")")
+  ))
+}
+
+# Print the results table for Pruritus
+print(results_table_pruritus)
+
+```
+
+We repeat this analysis for hypothyroidism.
+```{r}
+ # Filter for the specific drugs and count 'Hypothyroidism' reactions
+hypothyroidism_counts <- mydata %>%
+     filter(suspect_product_active_ingredients %in% c("Atezolizumab", "Avelumab", "Pembrolizumab", "Nivolumab")) %>%
+     rowwise() %>%
+     mutate(Hypothyroidism = sum(c_across(starts_with("reaction_")) == "Hypothyroidism", na.rm = TRUE)) %>%
+     group_by(suspect_product_active_ingredients) %>%
+     summarise(Hypothyroidism_Count = sum(Hypothyroidism))
+ 
+# Print the result
+print(hypothyroidism_counts)
+```
+
+We subtract this number from the irAEs, and add this number to the non-irAEs so as to get the total number of non-'hypothyroidism' reactions associated with each ICI.
+
+```{r}
+# Ensure the data frames are in the same order
+results_irae <- results_irae %>%
+  arrange(Drug)
+
+hypothyroidism_counts <- hypothyroidism_counts %>%
+  arrange(suspect_product_active_ingredients)
+
+# Subtract 'Hypothyroidism' counts from total reactions
+results_non_hypothyroidism <- results_irae %>%
+  mutate(
+    Non_Hypothyroidism_Reactions = Total_Reactions - hypothyroidism_counts$Hypothyroidism_Count
+  )
+
+# Print the updated results
+print(results_non_hypothyroidism)
+
+# Create the new dataset by adding Non_Rash_Reactions to Total_Reactions
+results_other_hypothyroidism <- data.frame(
+  Drug = results_non_irae$Drug,
+  Total_Reactions = results_non_irae$Total_Reactions + results_non_hypothyroidism$Non_Hypothyroidism_Reactions
+)
+
+# Print the new dataset
+print(results_other_hypothyroidism)
+
+```
+
+Now, we conduct the analysis:
+```{r}
+# Load necessary library
+library(dplyr)
+
+# Define the list of drugs
+drugs <- c("Atezolizumab", "Avelumab", "Nivolumab", "Pembrolizumab")
+
+# Initialize an empty data frame to store results for Hypothyroidism
+results_table_hypothyroidism <- data.frame()
+
+# Loop through each drug and perform the analysis for Hypothyroidism
+for (drug_of_interest in drugs) {
+  
+  # Extract a, b, c, d for the current drug (for Hypothyroidism)
+  a_hypothyroidism <- hypothyroidism_counts %>% filter(suspect_product_active_ingredients == drug_of_interest) %>% pull(Hypothyroidism_Count)
+  b_hypothyroidism <- results_other_hypothyroidism %>% filter(Drug == drug_of_interest) %>% pull(Total_Reactions)
+  c_hypothyroidism <- hypothyroidism_counts %>% filter(suspect_product_active_ingredients != drug_of_interest) %>% summarise(sum(Hypothyroidism_Count)) %>% pull()
+  d_hypothyroidism <- results_other_hypothyroidism %>% filter(Drug != drug_of_interest) %>% summarise(sum(Total_Reactions)) %>% pull()
+
+  # Step 1: Calculate PRR (Proportional Reporting Ratio)
+  prr <- (a_hypothyroidism / (a_hypothyroidism + b_hypothyroidism)) / (c_hypothyroidism / (c_hypothyroidism + d_hypothyroidism))
+
+  # Step 2: Calculate the 95% confidence interval for PRR
+  se_log_prr <- sqrt((1 / a_hypothyroidism) - (1 / (a_hypothyroidism + b_hypothyroidism)) + (1 / c_hypothyroidism) - (1 / (c_hypothyroidism + d_hypothyroidism)))
+  prr_lower <- exp(log(prr) - 1.96 * se_log_prr)
+  prr_upper <- exp(log(prr) + 1.96 * se_log_prr)
+
+  # Step 3: Calculate ROR (Reporting Odds Ratio)
+  ror <- (a_hypothyroidism / b_hypothyroidism) / (c_hypothyroidism / d_hypothyroidism)
+
+  # Step 4: Calculate the 95% confidence interval for ROR
+  se_log_ror <- sqrt((1 / a_hypothyroidism) + (1 / b_hypothyroidism) + (1 / c_hypothyroidism) + (1 / d_hypothyroidism))
+  ror_lower <- exp(log(ror) - 1.96 * se_log_ror)
+  ror_upper <- exp(log(ror) + 1.96 * se_log_ror)
+
+  # Step 5: Calculate IC (Information Component)
+  IC <- log2((a_hypothyroidism * (a_hypothyroidism + b_hypothyroidism + c_hypothyroidism + d_hypothyroidism)) / ((a_hypothyroidism + c_hypothyroidism) * (a_hypothyroidism + b_hypothyroidism)))
+
+  # Step 6: Calculate the variance of IC
+  var_IC <- (1 / log(2)^2) * (1 / a_hypothyroidism - 1 / (a_hypothyroidism + b_hypothyroidism) - 1 / (a_hypothyroidism + c_hypothyroidism) + 1 / (a_hypothyroidism + b_hypothyroidism + c_hypothyroidism + d_hypothyroidism))
+
+  # Step 7: Calculate the 95% confidence interval for IC
+  IC_lower <- IC - 1.96 * sqrt(var_IC)
+  IC_upper <- IC + 1.96 * sqrt(var_IC)
+
+  # Store results for the current drug (Hypothyroidism)
+  results_table_hypothyroidism <- rbind(results_table_hypothyroidism, data.frame(
+    Drug = drug_of_interest,
+    Reaction = "Hypothyroidism",
+    PRR = paste0(round(prr, 2), " (", round(prr_lower, 2), ", ", round(prr_upper, 2), ")"),
+    ROR = paste0(round(ror, 2), " (", round(ror_lower, 2), ", ", round(ror_upper, 2), ")"),
+    IC = paste0(round(IC, 2), " (", round(IC_lower, 2), ", ", round(IC_upper, 2), ")")
+  ))
+}
+
+# Print the results table for Hypothyroidism
+print(results_table_hypothyroidism)
+
+
+```
+
+Now, we assess the reports for hyperthyroidism:
+```{r}
+ # Filter for the specific drugs and count 'hyperthyroidism' reactions
+hyperthyroidism_counts <- mydata %>%
+     filter(suspect_product_active_ingredients %in% c("Atezolizumab", "Avelumab", "Pembrolizumab", "Nivolumab")) %>%
+     rowwise() %>%
+     mutate(Hyperthyroidism = sum(c_across(starts_with("reaction_")) == "Hyperthyroidism", na.rm = TRUE)) %>%
+     group_by(suspect_product_active_ingredients) %>%
+     summarise(Hyperthyroidism_Count = sum(Hyperthyroidism))
+ 
+# Print the result
+print(hyperthyroidism_counts)
+```
+We subtract this number from the irAEs, and add this number to the non-irAEs so as to get the total number of non-'hyperthyroidism' reactions associated with each ICI.
+```{r}
+# Ensure the data frames are in the same order
+results_irae <- results_irae %>%
+  arrange(Drug)
+
+hyperthyroidism_counts <- hyperthyroidism_counts %>%
+  arrange(suspect_product_active_ingredients)
+
+# Subtract 'Hyperthyroidism' counts from total reactions
+results_non_hyperthyroidism <- results_irae %>%
+  mutate(
+    Non_Hyperthyroidism_Reactions = Total_Reactions - hyperthyroidism_counts$Hyperthyroidism_Count
+  )
+
+# Print the updated results
+print(results_non_hyperthyroidism)
+
+# Create the new dataset by adding Non_Rash_Reactions to Total_Reactions
+results_other_hyperthyroidism <- data.frame(
+  Drug = results_non_irae$Drug,
+  Total_Reactions = results_non_irae$Total_Reactions + results_non_hyperthyroidism$Non_Hyperthyroidism_Reactions
+)
+
+# Print the new dataset
+print(results_other_hyperthyroidism)
+```
+
+Now, we conduct the analysis:
+```{r}
+# Load necessary library
+library(dplyr)
+
+# Define the list of drugs
+drugs <- c("Atezolizumab", "Avelumab", "Nivolumab", "Pembrolizumab")
+
+# Initialize an empty data frame to store results for Hyperthyroidism
+results_table_hyperthyroidism <- data.frame()
+
+# Loop through each drug and perform the analysis for Hyperthyroidism
+for (drug_of_interest in drugs) {
+  
+  # Extract a, b, c, d for the current drug (for Hyperthyroidism)
+  a_hyperthyroidism <- hyperthyroidism_counts %>% filter(suspect_product_active_ingredients == drug_of_interest) %>% pull(Hyperthyroidism_Count)
+  b_hyperthyroidism <- results_other_hyperthyroidism %>% filter(Drug == drug_of_interest) %>% pull(Total_Reactions)
+  c_hyperthyroidism <- hyperthyroidism_counts %>% filter(suspect_product_active_ingredients != drug_of_interest) %>% summarise(sum(Hyperthyroidism_Count)) %>% pull()
+  d_hyperthyroidism <- results_other_hyperthyroidism %>% filter(Drug != drug_of_interest) %>% summarise(sum(Total_Reactions)) %>% pull()
+
+  # Step 1: Calculate PRR (Proportional Reporting Ratio)
+  prr <- (a_hyperthyroidism / (a_hyperthyroidism + b_hyperthyroidism)) / (c_hyperthyroidism / (c_hyperthyroidism + d_hyperthyroidism))
+
+  # Step 2: Calculate the 95% confidence interval for PRR
+  se_log_prr <- sqrt((1 / a_hyperthyroidism) - (1 / (a_hyperthyroidism + b_hyperthyroidism)) + (1 / c_hyperthyroidism) - (1 / (c_hyperthyroidism + d_hyperthyroidism)))
+  prr_lower <- exp(log(prr) - 1.96 * se_log_prr)
+  prr_upper <- exp(log(prr) + 1.96 * se_log_prr)
+
+  # Step 3: Calculate ROR (Reporting Odds Ratio)
+  ror <- (a_hyperthyroidism / b_hyperthyroidism) / (c_hyperthyroidism / d_hyperthyroidism)
+
+  # Step 4: Calculate the 95% confidence interval for ROR
+  se_log_ror <- sqrt((1 / a_hyperthyroidism) + (1 / b_hyperthyroidism) + (1 / c_hyperthyroidism) + (1 / d_hyperthyroidism))
+  ror_lower <- exp(log(ror) - 1.96 * se_log_ror)
+  ror_upper <- exp(log(ror) + 1.96 * se_log_ror)
+
+  # Step 5: Calculate IC (Information Component)
+  IC <- log2((a_hyperthyroidism * (a_hyperthyroidism + b_hyperthyroidism + c_hyperthyroidism + d_hyperthyroidism)) / ((a_hyperthyroidism + c_hyperthyroidism) * (a_hyperthyroidism + b_hyperthyroidism)))
+
+  # Step 6: Calculate the variance of IC
+  var_IC <- (1 / log(2)^2) * (1 / a_hyperthyroidism - 1 / (a_hyperthyroidism + b_hyperthyroidism) - 1 / (a_hyperthyroidism + c_hyperthyroidism) + 1 / (a_hyperthyroidism + b_hyperthyroidism + c_hyperthyroidism + d_hyperthyroidism))
+
+  # Step 7: Calculate the 95% confidence interval for IC
+  IC_lower <- IC - 1.96 * sqrt(var_IC)
+  IC_upper <- IC + 1.96 * sqrt(var_IC)
+
+  # Store results for the current drug (Hyperthyroidism)
+  results_table_hyperthyroidism <- rbind(results_table_hyperthyroidism, data.frame(
+    Drug = drug_of_interest,
+    Reaction = "Hyperthyroidism",
+    PRR = paste0(round(prr, 2), " (", round(prr_lower, 2), ", ", round(prr_upper, 2), ")"),
+    ROR = paste0(round(ror, 2), " (", round(ror_lower, 2), ", ", round(ror_upper, 2), ")"),
+    IC = paste0(round(IC, 2), " (", round(IC_lower, 2), ", ", round(IC_upper, 2), ")")
+  ))
+}
+
+# Print the results table for Hyperthyroidism
+print(results_table_hyperthyroidism)
+
+```
+
+Now, we repeat this analysis with colitis:
+
+```{r}
+ # Filter for the specific drugs and count 'colitis' reactions
+colitis_counts <- mydata %>%
+     filter(suspect_product_active_ingredients %in% c("Atezolizumab", "Avelumab", "Pembrolizumab", "Nivolumab")) %>%
+     rowwise() %>%
+     mutate(Colitis = sum(c_across(starts_with("reaction_")) == "Colitis", na.rm = TRUE)) %>%
+     group_by(suspect_product_active_ingredients) %>%
+     summarise(Colitis_Count = sum(Colitis))
+ 
+# Print the result
+print(colitis_counts)
+```
+We subtract this number from the irAEs, and add this number to the non-irAEs so as to get the total number of non-'colitis' reactions associated with each ICI.
+```{r}
+# Ensure the data frames are in the same order
+results_irae <- results_irae %>%
+  arrange(Drug)
+
+colitis_counts <- colitis_counts %>%
+  arrange(suspect_product_active_ingredients)
+
+# Subtract 'colitis' counts from total reactions
+results_non_colitis <- results_irae %>%
+  mutate(
+    Non_Colitis_Reactions = Total_Reactions - colitis_counts$Colitis_Count
+  )
+
+# Print the updated results
+print(results_non_colitis)
+
+# Create the new dataset by adding Non_Rash_Reactions to Total_Reactions
+results_other_colitis <- data.frame(
+  Drug = results_non_irae$Drug,
+  Total_Reactions = results_non_irae$Total_Reactions + results_non_colitis$Non_Colitis_Reactions
+)
+
+# Print the new dataset
+print(results_other_colitis)
+```
+
+Now, we conduct the analysis:
+```{r}
+# Load necessary library
+library(dplyr)
+
+# Define the list of drugs
+drugs <- c("Atezolizumab", "Avelumab", "Nivolumab", "Pembrolizumab")
+
+# Initialize an empty data frame to store results for Colitis
+results_table_colitis <- data.frame()
+
+# Loop through each drug and perform the analysis for Colitis
+for (drug_of_interest in drugs) {
+  
+  # Extract a, b, c, d for the current drug (for Colitis)
+  a_colitis <- colitis_counts %>% filter(suspect_product_active_ingredients == drug_of_interest) %>% pull(Colitis_Count)
+  b_colitis <- results_other_colitis %>% filter(Drug == drug_of_interest) %>% pull(Total_Reactions)
+  c_colitis <- colitis_counts %>% filter(suspect_product_active_ingredients != drug_of_interest) %>% summarise(sum(Colitis_Count)) %>% pull()
+  d_colitis <- results_other_colitis %>% filter(Drug != drug_of_interest) %>% summarise(sum(Total_Reactions)) %>% pull()
+
+  # Step 1: Calculate PRR (Proportional Reporting Ratio)
+  prr <- (a_colitis / (a_colitis + b_colitis)) / (c_colitis / (c_colitis + d_colitis))
+
+  # Step 2: Calculate the 95% confidence interval for PRR
+  se_log_prr <- sqrt((1 / a_colitis) - (1 / (a_colitis + b_colitis)) + (1 / c_colitis) - (1 / (c_colitis + d_colitis)))
+  prr_lower <- exp(log(prr) - 1.96 * se_log_prr)
+  prr_upper <- exp(log(prr) + 1.96 * se_log_prr)
+
+  # Step 3: Calculate ROR (Reporting Odds Ratio)
+  ror <- (a_colitis / b_colitis) / (c_colitis / d_colitis)
+
+  # Step 4: Calculate the 95% confidence interval for ROR
+  se_log_ror <- sqrt((1 / a_colitis) + (1 / b_colitis) + (1 / c_colitis) + (1 / d_colitis))
+  ror_lower <- exp(log(ror) - 1.96 * se_log_ror)
+  ror_upper <- exp(log(ror) + 1.96 * se_log_ror)
+
+  # Step 5: Calculate IC (Information Component)
+  IC <- log2((a_colitis * (a_colitis + b_colitis + c_colitis + d_colitis)) / ((a_colitis + c_colitis) * (a_colitis + b_colitis)))
+
+  # Step 6: Calculate the variance of IC
+  var_IC <- (1 / log(2)^2) * (1 / a_colitis - 1 / (a_colitis + b_colitis) - 1 / (a_colitis + c_colitis) + 1 / (a_colitis + b_colitis + c_colitis + d_colitis))
+
+  # Step 7: Calculate the 95% confidence interval for IC
+  IC_lower <- IC - 1.96 * sqrt(var_IC)
+  IC_upper <- IC + 1.96 * sqrt(var_IC)
+
+  # Store results for the current drug (Colitis)
+  results_table_colitis <- rbind(results_table_colitis, data.frame(
+    Drug = drug_of_interest,
+    Reaction = "Colitis",
+    PRR = paste0(round(prr, 2), " (", round(prr_lower, 2), ", ", round(prr_upper, 2), ")"),
+    ROR = paste0(round(ror, 2), " (", round(ror_lower, 2), ", ", round(ror_upper, 2), ")"),
+    IC = paste0(round(IC, 2), " (", round(IC_lower, 2), ", ", round(IC_upper, 2), ")")
+  ))
+}
+
+# Print the results table for Colitis
+print(results_table_colitis)
+
+```
+Now, we conduct the same analysis for hepatitis:
+
+```{r}
+# Filter for the specific drugs and count 'hepatitis' reactions
+hepatitis_counts <- mydata %>%
+  filter(suspect_product_active_ingredients %in% c("Atezolizumab", "Avelumab", "Pembrolizumab", "Nivolumab")) %>%
+  rowwise() %>%
+  mutate(Hepatitis = sum(c_across(starts_with("reaction_")) == "Hepatitis", na.rm = TRUE)) %>%
+  group_by(suspect_product_active_ingredients) %>%
+  summarise(Hepatitis_Count = sum(Hepatitis))
+
+# Print the result
+print(hepatitis_counts)
+```
+We subtract this number from the irAEs, and add this number to the non-irAEs so as to get the total number of non-'hepatitis' reactions associated with each ICI.
+```{r}
+# Ensure the data frames are in the same order
+results_irae <- results_irae %>%
+  arrange(Drug)
+
+hepatitis_counts <- hepatitis_counts %>%
+  arrange(suspect_product_active_ingredients)
+
+# Subtract 'hepatitis' counts from total reactions
+results_non_hepatitis <- results_irae %>%
+  mutate(
+    Non_Hepatitis_Reactions = Total_Reactions - hepatitis_counts$Hepatitis_Count
+  )
+
+# Print the updated results
+print(results_non_hepatitis)
+
+# Create the new dataset by adding Non_Hepatitis_Reactions to Total_Reactions
+results_other_hepatitis <- data.frame(
+  Drug = results_non_irae$Drug,
+  Total_Reactions = results_non_irae$Total_Reactions + results_non_hepatitis$Non_Hepatitis_Reactions
+)
+
+# Print the new dataset
+print(results_other_hepatitis)
+```
+Now, we conduct the analysis:
+```{r}
+# Load necessary library
+library(dplyr)
+
+# Define the list of drugs
+drugs <- c("Atezolizumab", "Avelumab", "Nivolumab", "Pembrolizumab")
+
+# Initialize an empty data frame to store results for Hepatitis
+results_table_hepatitis <- data.frame()
+
+# Loop through each drug and perform the analysis for Hepatitis
+for (drug_of_interest in drugs) {
+  
+  # Extract a, b, c, d for the current drug (for Hepatitis)
+  a_hepatitis <- hepatitis_counts %>% filter(suspect_product_active_ingredients == drug_of_interest) %>% pull(Hepatitis_Count)
+  b_hepatitis <- results_other_hepatitis %>% filter(Drug == drug_of_interest) %>% pull(Total_Reactions)
+  c_hepatitis <- hepatitis_counts %>% filter(suspect_product_active_ingredients != drug_of_interest) %>% summarise(sum(Hepatitis_Count)) %>% pull()
+  d_hepatitis <- results_other_hepatitis %>% filter(Drug != drug_of_interest) %>% summarise(sum(Total_Reactions)) %>% pull()
+
+  # Step 1: Calculate PRR (Proportional Reporting Ratio)
+  prr <- (a_hepatitis / (a_hepatitis + b_hepatitis)) / (c_hepatitis / (c_hepatitis + d_hepatitis))
+
+  # Step 2: Calculate the 95% confidence interval for PRR
+  se_log_prr <- sqrt((1 / a_hepatitis) - (1 / (a_hepatitis + b_hepatitis)) + (1 / c_hepatitis) - (1 / (c_hepatitis + d_hepatitis)))
+  prr_lower <- exp(log(prr) - 1.96 * se_log_prr)
+  prr_upper <- exp(log(prr) + 1.96 * se_log_prr)
+
+  # Step 3: Calculate ROR (Reporting Odds Ratio)
+  ror <- (a_hepatitis / b_hepatitis) / (c_hepatitis / d_hepatitis)
+
+  # Step 4: Calculate the 95% confidence interval for ROR
+  se_log_ror <- sqrt((1 / a_hepatitis) + (1 / b_hepatitis) + (1 / c_hepatitis) + (1 / d_hepatitis))
+  ror_lower <- exp(log(ror) - 1.96 * se_log_ror)
+  ror_upper <- exp(log(ror) + 1.96 * se_log_ror)
+
+  # Step 5: Calculate IC (Information Component)
+  IC <- log2((a_hepatitis * (a_hepatitis + b_hepatitis + c_hepatitis + d_hepatitis)) / ((a_hepatitis + c_hepatitis) * (a_hepatitis + b_hepatitis)))
+
+  # Step 6: Calculate the variance of IC
+  var_IC <- (1 / log(2)^2) * (1 / a_hepatitis - 1 / (a_hepatitis + b_hepatitis) - 1 / (a_hepatitis + c_hepatitis) + 1 / (a_hepatitis + b_hepatitis + c_hepatitis + d_hepatitis))
+
+  # Step 7: Calculate the 95% confidence interval for IC
+  IC_lower <- IC - 1.96 * sqrt(var_IC)
+  IC_upper <- IC + 1.96 * sqrt(var_IC)
+
+  # Store results for the current drug (Hepatitis)
+  results_table_hepatitis <- rbind(results_table_hepatitis, data.frame(
+    Drug = drug_of_interest,
+    Reaction = "Hepatitis",
+    PRR = paste0(round(prr, 2), " (", round(prr_lower, 2), ", ", round(prr_upper, 2), ")"),
+    ROR = paste0(round(ror, 2), " (", round(ror_lower, 2), ", ", round(ror_upper, 2), ")"),
+    IC = paste0(round(IC, 2), " (", round(IC_lower, 2), ", ", round(IC_upper, 2), ")")
+  ))
+}
+
+# Print the results table for Hepatitis
+print(results_table_hepatitis)
+
+
+```
+We repeat this with nephritis:
+```{r}
+# Filter for the specific drugs and count 'nephritis' reactions
+nephritis_counts <- mydata %>%
+  filter(suspect_product_active_ingredients %in% c("Atezolizumab", "Avelumab", "Pembrolizumab", "Nivolumab")) %>%
+  rowwise() %>%
+  mutate(Nephritis = sum(c_across(starts_with("reaction_")) == "Nephritis", na.rm = TRUE)) %>%
+  group_by(suspect_product_active_ingredients) %>%
+  summarise(Nephritis_Count = sum(Nephritis))
+
+# Print the result
+print(nephritis_counts)
+```
+```{r}
+# Ensure the data frames are in the same order
+results_irae <- results_irae %>%
+  arrange(Drug)
+
+nephritis_counts <- nephritis_counts %>%
+  arrange(suspect_product_active_ingredients)
+
+# Subtract 'nephritis' counts from total reactions
+results_non_nephritis <- results_irae %>%
+  mutate(
+    Non_Nephritis_Reactions = Total_Reactions - nephritis_counts$Nephritis_Count
+  )
+
+# Print the updated results
+print(results_non_nephritis)
+
+# Create the new dataset by adding Non_Nephritis_Reactions to Total_Reactions
+results_other_nephritis <- data.frame(
+  Drug = results_non_irae$Drug,
+  Total_Reactions = results_non_irae$Total_Reactions + results_non_nephritis$Non_Nephritis_Reactions
+)
+
+# Print the new dataset
+print(results_other_nephritis)
+```
+Disproportionality analysis:
+```{r}
+# Load necessary library
+library(dplyr)
+
+# Define the list of drugs
+drugs <- c("Atezolizumab", "Avelumab", "Nivolumab", "Pembrolizumab")
+
+# Initialize an empty data frame to store results for Nephritis
+results_table_nephritis <- data.frame()
+
+# Loop through each drug and perform the analysis for Nephritis
+for (drug_of_interest in drugs) {
+  
+  # Extract a, b, c, d for the current drug (for Nephritis)
+  a_nephritis <- nephritis_counts %>% filter(suspect_product_active_ingredients == drug_of_interest) %>% pull(Nephritis_Count)
+  b_nephritis <- results_other_nephritis %>% filter(Drug == drug_of_interest) %>% pull(Total_Reactions)
+  c_nephritis <- nephritis_counts %>% filter(suspect_product_active_ingredients != drug_of_interest) %>% summarise(sum(Nephritis_Count)) %>% pull()
+  d_nephritis <- results_other_nephritis %>% filter(Drug != drug_of_interest) %>% summarise(sum(Total_Reactions)) %>% pull()
+
+  # Step 1: Calculate PRR (Proportional Reporting Ratio)
+  prr <- (a_nephritis / (a_nephritis + b_nephritis)) / (c_nephritis / (c_nephritis + d_nephritis))
+
+  # Step 2: Calculate the 95% confidence interval for PRR
+  se_log_prr <- sqrt((1 / a_nephritis) - (1 / (a_nephritis + b_nephritis)) + (1 / c_nephritis) - (1 / (c_nephritis + d_nephritis)))
+  prr_lower <- exp(log(prr) - 1.96 * se_log_prr)
+  prr_upper <- exp(log(prr) + 1.96 * se_log_prr)
+
+  # Step 3: Calculate ROR (Reporting Odds Ratio)
+  ror <- (a_nephritis / b_nephritis) / (c_nephritis / d_nephritis)
+
+  # Step 4: Calculate the 95% confidence interval for ROR
+  se_log_ror <- sqrt((1 / a_nephritis) + (1 / b_nephritis) + (1 / c_nephritis) + (1 / d_nephritis))
+  ror_lower <- exp(log(ror) - 1.96 * se_log_ror)
+  ror_upper <- exp(log(ror) + 1.96 * se_log_ror)
+
+  # Step 5: Calculate IC (Information Component)
+  IC <- log2((a_nephritis * (a_nephritis + b_nephritis + c_nephritis + d_nephritis)) / ((a_nephritis + c_nephritis) * (a_nephritis + b_nephritis)))
+
+  # Step 6: Calculate the variance of IC
+  var_IC <- (1 / log(2)^2) * (1 / a_nephritis - 1 / (a_nephritis + b_nephritis) - 1 / (a_nephritis + c_nephritis) + 1 / (a_nephritis + b_nephritis + c_nephritis + d_nephritis))
+
+  # Step 7: Calculate the 95% confidence interval for IC
+  IC_lower <- IC - 1.96 * sqrt(var_IC)
+  IC_upper <- IC + 1.96 * sqrt(var_IC)
+
+  # Store results for the current drug (Nephritis)
+  results_table_nephritis <- rbind(results_table_nephritis, data.frame(
+    Drug = drug_of_interest,
+    Reaction = "Nephritis",
+    PRR = paste0(round(prr, 2), " (", round(prr_lower, 2), ", ", round(prr_upper, 2), ")"),
+    ROR = paste0(round(ror, 2), " (", round(ror_lower, 2), ", ", round(ror_upper, 2), ")"),
+    IC = paste0(round(IC, 2), " (", round(IC_lower, 2), ", ", round(IC_upper, 2), ")")
+  ))
+}
+
+# Print the results table for Nephritis
+print(results_table_nephritis)
+
+```
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(tidyr)
+library(huxtable)
+
+# Combine all individual results tables
+all_results <- bind_rows(
+  results_table_all_iraes,
+  results_table_rash,
+  results_table_pruritus,
+  results_table_hypothyroidism,
+  results_table_hyperthyroidism,
+  results_table_colitis,
+  results_table_hepatitis,
+  results_table_nephritis
+)
+
+# Pivot data to get reactions as rows and drugs as grouped columns with subcolumns for PRR, ROR, and IC
+summary_table <- all_results %>%
+  pivot_wider(names_from = Drug, values_from = c(PRR, ROR, IC),
+              names_glue = "{Drug} {.value} (95% CI)")
+
+# Check the structure of the table and columns
+colnames(summary_table)
+
+# Highlight significant values using conditional bolding (PRR > 1, ROR > 1, IC > 0)
+summary_table <- summary_table %>%
+  mutate(across(starts_with("PRR"), ~ ifelse(. > 1 & grepl("\\(1", .), "bold", .))) %>%
+  mutate(across(starts_with("ROR"), ~ ifelse(. > 1 & grepl("\\(1", .), "bold", .))) %>%
+  mutate(across(starts_with("IC"), ~ ifelse(. > 0 & grepl("\\(0", .), "bold", .)))
+
+# Split the summary_table into 4 separate tables for each drug
+# Table for Atezolizumab
+table_atezolizumab <- summary_table %>%
+  select(Reaction, starts_with("Atezolizumab")) %>%
+  as_hux() %>%
+  set_bold(1, 1:ncol(.)) %>%
+  set_caption("Atezolizumab Drug-Reaction Analysis") %>%
+  set_width(1) 
+
+# Apply bolding for significant values for Atezolizumab
+for (i in 2:ncol(table_atezolizumab)) {
+  table_atezolizumab <- table_atezolizumab %>%
+    set_bold(which(table_atezolizumab[, i] == "bold"), i)
+}
+
+# Table for Avelumab
+table_avelumab <- summary_table %>%
+  select(Reaction, starts_with("Avelumab")) %>%
+  as_hux() %>%
+  set_bold(1, 1:ncol(.)) %>%
+  set_caption("Avelumab Drug-Reaction Analysis") %>%
+  set_width(1)
+
+# Apply bolding for significant values for Avelumab
+for (i in 2:ncol(table_avelumab)) {
+  table_avelumab <- table_avelumab %>%
+    set_bold(which(table_avelumab[, i] == "bold"), i)
+}
+
+# Table for Nivolumab
+table_nivolumab <- summary_table %>%
+  select(Reaction, starts_with("Nivolumab")) %>%
+  as_hux() %>%
+  set_bold(1, 1:ncol(.)) %>%
+  set_caption("Nivolumab Drug-Reaction Analysis") %>%
+  set_width(1)
+
+# Apply bolding for significant values for Nivolumab
+for (i in 2:ncol(table_nivolumab)) {
+  table_nivolumab <- table_nivolumab %>%
+    set_bold(which(table_nivolumab[, i] == "bold"), i)
+}
+
+# Table for Pembrolizumab
+table_pembrolizumab <- summary_table %>%
+  select(Reaction, starts_with("Pembrolizumab")) %>%
+  as_hux() %>%
+  set_bold(1, 1:ncol(.)) %>%
+  set_caption("Pembrolizumab Drug-Reaction Analysis") %>%
+  set_width(1)
+
+# Apply bolding for significant values for Pembrolizumab
+for (i in 2:ncol(table_pembrolizumab)) {
+  table_pembrolizumab <- table_pembrolizumab %>%
+    set_bold(which(table_pembrolizumab[, i] == "bold"), i)
+}
+
+# Display each table
+table_atezolizumab
+table_avelumab
+table_nivolumab
+table_pembrolizumab
+
+
+```
+
+```{r}
+#Save the table
+library(here)
+# Load necessary libraries
+library(here)
+
+# Define paths for saving each table
+table_atezolizumab_path <- here("results", "tables", "table_atezolizumab.rds")
+table_avelumab_path <- here("results", "tables", "table_avelumab.rds")
+table_nivolumab_path <- here("results", "tables", "table_nivolumab.rds")
+table_pembrolizumab_path <- here("results", "tables", "table_pembrolizumab.rds")
+
+# Save all four tables to their respective paths
+saveRDS(table_atezolizumab, file = table_atezolizumab_path)
+saveRDS(table_avelumab, file = table_avelumab_path)
+saveRDS(table_nivolumab, file = table_nivolumab_path)
+saveRDS(table_pembrolizumab, file = table_pembrolizumab_path)
+```
+

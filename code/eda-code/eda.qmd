@@ -29,118 +29,151 @@ mydata <- readRDS(data_location)
 
 # Data exploration through tables
 
-Showing a bit of code to produce and save a summary table.
 First, we summarize all our information using a table.
 
 ```{r}
+# Load necessary libraries
 library(dplyr)
 library(tidyr)
-library(kableExtra)
+library(huxtable)
 
-# Create a table for Age summary with Mean and SD
-age_summary <- data.frame(
-    Category = "Age",
-    Value = paste(round(mean(mydata$patient_age, na.rm = TRUE), 2), "±", round(sd(mydata$patient_age, na.rm = TRUE), 2)),
-    Count = NA,
-    Percent = NA
-)
+# 1. Summarize Age (Mean and SD)
+age_summary <- mydata %>%
+  group_by(suspect_product_active_ingredients) %>%
+  summarise(
+    mean_age = mean(patient_age, na.rm = TRUE),
+    sd_age = sd(patient_age, na.rm = TRUE)
+  ) %>%
+  mutate(`Age, mean years ± SD` = paste0(round(mean_age, 1), " ± ", round(sd_age, 1))) %>%
+  select(suspect_product_active_ingredients, `Age, mean years ± SD`)
 
-# Sex Summary
+# 2. Summarize Sex Distribution
 sex_summary <- mydata %>%
-    group_by(sex) %>%
-    summarise(Count = n()) %>%
-    mutate(Percent = round((Count / sum(Count)) * 100, 1)) %>%
-    rename(Category = sex) %>%
-    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+  group_by(suspect_product_active_ingredients, sex) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = sex, values_from = count, values_fill = list(count = 0)) %>%
+  rename(`Not Specified (Sex)` = `Not Specified`) %>%
+  select(suspect_product_active_ingredients, Male, Female, `Not Specified (Sex)`)
 
-# Drug Summary
-drug_summary <- mydata %>%
-    group_by(suspect_product_active_ingredients) %>%
-    summarise(Count = n()) %>%
-    mutate(Percent = round((Count / sum(Count)) * 100, 1)) %>%
-    rename(Category = suspect_product_active_ingredients) %>%
-    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+# 3. Summarize Reaction Severity
+reaction_severity_summary <- mydata %>%
+  group_by(suspect_product_active_ingredients, serious) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = serious, values_from = count, values_fill = list(count = 0)) %>%
+  rename(Serious = Serious, `Non-Serious (Reaction)` = `Non-Serious`) %>%
+  select(suspect_product_active_ingredients, Serious, `Non-Serious (Reaction)`)
 
-# Outcome Summary
-outcome_summary <- mydata %>%
-    group_by(serious) %>%
-    summarise(Count = n()) %>%
-    mutate(Percent = round((Count / sum(Count)) * 100, 1)) %>%
-    rename(Category = serious) %>%
-    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+# 4. Summarize Outcomes
+outcomes_summary <- mydata %>%
+  group_by(suspect_product_active_ingredients, outcomes) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = outcomes, values_from = count, values_fill = list(count = 0)) %>%
+  rename(`Non-Serious (Outcome)` = `Non-Serious`) %>%
+  select(suspect_product_active_ingredients, Died, Hospitalized, Disabled, `Life Threatening`, `Non-Serious (Outcome)`, `Other Outcomes`)
 
-# Reporter Type Summary
-reporter_summary <- mydata %>%
-    group_by(reporter_type) %>%
-    summarise(Count = n()) %>%
-    mutate(Percent = round((Count / sum(Count)) * 100, 1)) %>%
-    rename(Category = reporter_type) %>%
-    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+# 5. Summarize Reporter Type
+reporter_type_summary <- mydata %>%
+  group_by(suspect_product_active_ingredients, reporter_type) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = reporter_type, values_from = count, values_fill = list(count = 0)) %>%
+  select(suspect_product_active_ingredients, `Healthcare Professional`, Consumer)
 
-# Country Summary
+# 6. Summarize Country
 country_summary <- mydata %>%
-    group_by(country_where_event_occurred) %>%
-    summarise(Count = n()) %>%
-    mutate(Percent = round((Count / sum(Count)) * 100, 1)) %>%
-    rename(Category = country_where_event_occurred) %>%
-    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
-
-# Reaction Type Summary
-# Define the organ system columns
-organ_systems <- c("organ_system_1", "organ_system_2", "organ_system_3", "organ_system_4", "organ_system_5")
-
-summary_data <- mydata %>%
-    select(all_of(organ_systems)) %>%
-    pivot_longer(cols = everything(), values_to = "organ_system") %>%
-    filter(!is.na(organ_system)) %>%
-    group_by(organ_system) %>%
-    summarise(
-        Count = n(),
-        Percent = round((n() / nrow(mydata)) * 100, 1)
-    ) %>%
-    rename(Category = organ_system) %>%
-    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+  group_by(suspect_product_active_ingredients, country_where_event_occurred) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = country_where_event_occurred, values_from = count, values_fill = list(count = 0)) %>%
+  rename(`Not Specified (Country)` = `Not Specified`) %>%
+  select(suspect_product_active_ingredients, US, `Outside US`, `Not Specified (Country)`)
 
 # Combine all summaries into one table
-final_summary_table <- bind_rows(
-    data.frame(Category = "Age", Value = age_summary$Value, stringsAsFactors = FALSE),
-    data.frame(Category = "Sex", Value = "", stringsAsFactors = FALSE), # Subheading for Sex
-    sex_summary %>% select(Category, Value),
-    data.frame(Category = "", Value = "", stringsAsFactors = FALSE), # Blank row after Sex
-    data.frame(Category = "Immune Checkpoint Inhibitors", Value = "", stringsAsFactors = FALSE), # Subheading for Drugs
-    drug_summary %>% select(Category, Value),
-    data.frame(Category = "", Value = "", stringsAsFactors = FALSE), # Blank row after Drugs
-    data.frame(Category = "Outcome", Value = "", stringsAsFactors = FALSE), # Subheading for Outcome
-    outcome_summary %>% select(Category, Value),
-    data.frame(Category = "", Value = "", stringsAsFactors = FALSE), # Blank row after Outcome
-    data.frame(Category = "Reporter Type", Value = "", stringsAsFactors = FALSE), # Subheading for Reporter Type
-    reporter_summary %>% select(Category, Value),
-    data.frame(Category = "", Value = "", stringsAsFactors = FALSE), # Blank row after Reporter Type
-    data.frame(Category = "Country", Value = "", stringsAsFactors = FALSE), # Subheading for Country
-    country_summary %>% select(Category, Value),
-    data.frame(Category = "", Value = "", stringsAsFactors = FALSE), # Blank row after Country
-    data.frame(Category = "Reaction Type", Value = "", stringsAsFactors = FALSE), # Subheading for Reaction Type
-    summary_data %>% select(Category, Value)
-)
+combined_summary <- age_summary %>%
+  full_join(sex_summary, by = "suspect_product_active_ingredients") %>%
+  full_join(reaction_severity_summary, by = "suspect_product_active_ingredients") %>%
+  full_join(outcomes_summary, by = "suspect_product_active_ingredients") %>%
+  full_join(reporter_type_summary, by = "suspect_product_active_ingredients") %>%
+  full_join(country_summary, by = "suspect_product_active_ingredients")
 
-# Create a publication-quality table using kableExtra
-final_summary_table %>%
-    kable("html", caption = "Table 1: Descriptive Statistics", col.names = c("Category", "Value")) %>%
-    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-    column_spec(1, bold = TRUE) %>%
-    row_spec(which(final_summary_table$Category %in% c("Age", "Sex", "Immune Checkpoint Inhibitors", "Outcome", "Reporter Type", "Country", "Reaction Type")), bold = TRUE, background = "#f7f7f7") %>%
-    footnote(general = "This table summarizes the patient data by various categories.")
+# Convert all columns (except `suspect_product_active_ingredients`) to character
+combined_summary <- combined_summary %>%
+  mutate(across(-suspect_product_active_ingredients, as.character))
+
+# Transpose the table for Word compatibility
+transposed_table <- combined_summary %>%
+  pivot_longer(cols = -suspect_product_active_ingredients, names_to = "Attribute", values_to = "Value") %>%
+  pivot_wider(names_from = suspect_product_active_ingredients, values_from = Value)
+
+# Rename columns for clarity
+colnames(transposed_table)[1] <- "Attribute"
+
+# Convert to huxtable object
+huxtable_table <- as_hux(transposed_table)
+
+# Format the table with huxtable (style, borders, etc.)
+huxtable_table <- huxtable_table %>%
+  set_all_borders(1) %>%
+  set_font_size(12) %>%
+  set_align("center") %>%
+  set_width(1.5)
+
+# Print the huxtable object, this will render correctly in Word
+huxtable_table
 
 ```
-
 
 We save the table.
 
 ```{r}
 # save to file
-summarytable_file = here("results", "tables", "summarytable.rds")
-saveRDS(final_summary_table, file = summarytable_file)
+huxtable_table_path = here("results", "tables", "summarytable.rds")
+saveRDS(huxtable_table, file = huxtable_table_path)
 ```
+
+
+Table 2 - Summarizing organ system reaction by drug type
+```{r}
+# Load necessary libraries
+library(huxtable)
+library(dplyr)
+library(tidyr)
+
+# Define the organ system columns
+organ_systems <- c("organ_system_1", "organ_system_2", "organ_system_3", "organ_system_4", "organ_system_5")
+
+# Transform the organ system columns into a single column and calculate counts and percentages
+organ_system_summary <- mydata %>%
+    select(suspect_product_active_ingredients, all_of(organ_systems)) %>%
+    pivot_longer(cols = all_of(organ_systems), names_to = "Organ_System", values_to = "Reaction") %>%
+    filter(!is.na(Reaction)) %>%
+    group_by(suspect_product_active_ingredients, Reaction) %>%
+    summarise(Count = n(), .groups = 'drop') %>%
+    mutate(Percent = round((Count / nrow(mydata)) * 100, 1)) %>%
+    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+
+# Pivot the summary to have reactions as rows and drugs as columns, combining counts and percentages
+organ_system_pivoted <- organ_system_summary %>%
+    select(suspect_product_active_ingredients, Reaction, Value) %>%
+    pivot_wider(names_from = suspect_product_active_ingredients, values_from = Value, values_fill = list(Value = "0"))
+
+# Create a huxtable table
+ht <- huxtable::as_hux(organ_system_pivoted)
+
+# Add styling to the table
+ht <- ht %>%
+    set_bold(1, 1:ncol(ht)) %>%  # Bold the first row (header)
+    set_caption("Immune Checkpoint Inhibitors by Organ System and Reaction") %>%
+    set_width(1)                  # Set column width to make the table more compact
+
+# Display the table
+ht
+
+
+#Save the table
+ht_path = here("results", "tables", "summarytable1.rds")
+saveRDS(ht, file = ht_path)
+
+```
+
 
 
 # Data exploration through figures
@@ -181,18 +214,38 @@ ggsave(filename = figure_file, plot=p1)
 Now let's look at the bar graph by type of organ system.
 
 ```{r}
-p2 <- summary_data %>%
-    ggplot(aes(x = reorder(Category, Count), y = Count)) + # Reorder by Count ascending
+# Define the organ system columns
+organ_systems <- c("organ_system_1", "organ_system_2", "organ_system_3", "organ_system_4", "organ_system_5")
+
+# Create a summary dataset for reactions across all organ systems
+organ_system_summary <- mydata %>%
+    select(all_of(organ_systems)) %>%
+    pivot_longer(cols = everything(), names_to = "Organ_System", values_to = "Reaction") %>%
+    filter(!is.na(Reaction)) %>%
+    group_by(Reaction) %>%
+    summarise(Count = n(), .groups = 'drop') %>%
+    mutate(Percent = round((Count / sum(Count)) * 100, 1)) %>%
+    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+
+# View the summary dataset
+organ_system_summary
+
+# Plot the reaction types with counts and percentages
+p2 <- organ_system_summary %>%
+    ggplot(aes(x = reorder(Reaction, Count), y = Count)) +  # Reorder by Count
     geom_col(fill = "#1f77b4") +
     labs(
         title = "Bar Plot of Reaction Types",
-        x = "Organ System",
+        x = "Reaction Type",
         y = "Count",
         caption = "Percentages are shown in parentheses"
     ) +
     theme_minimal() +
-    geom_text(aes(label = Value), hjust = -0.1, size = 3) + # Adjust label position
-    coord_flip() # Flip the axes
+    geom_text(aes(label = Value), hjust = 1.1, size = 3) +  # Adjust label position to avoid overlap
+    coord_flip() +  # Flip the axes to make it horizontal
+    theme(
+        plot.margin = margin(10, 50, 10, 10)  # Add margin to the right side to avoid label cut-off
+    )
 
 # Print the plot
 print(p2)

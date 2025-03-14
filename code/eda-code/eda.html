@@ -67,10 +67,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="eda_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="eda_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="eda_files/libs/bootstrap/bootstrap-8a79a254b8e706d3c925cde0a310d4f0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script src="eda_files/libs/kePrint-0.0.1/kePrint.js"></script>
-
-<link href="eda_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
-
 
 
 </head>
@@ -139,330 +135,247 @@ Attaching package: 'dplyr'</code></pre>
 </section>
 <section id="data-exploration-through-tables" class="level1">
 <h1>Data exploration through tables</h1>
-<p>Showing a bit of code to produce and save a summary table. First, we summarize all our information using a table.</p>
+<p>First, we summarize all our information using a table.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load necessary libraries</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(huxtable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
-Attaching package: 'kableExtra'</code></pre>
+Attaching package: 'huxtable'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:ggplot2':
+
+    theme_grey</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>The following object is masked from 'package:dplyr':
 
-    group_rows</code></pre>
+    add_rownames</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a table for Age summary with Mean and SD</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>age_summary <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Category =</span> <span class="st">"Age"</span>,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Value =</span> <span class="fu">paste</span>(<span class="fu">round</span>(<span class="fu">mean</span>(mydata<span class="sc">$</span>patient_age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">2</span>), <span class="st">"±"</span>, <span class="fu">round</span>(<span class="fu">sd</span>(mydata<span class="sc">$</span>patient_age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">2</span>)),</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Count =</span> <span class="cn">NA</span>,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Percent =</span> <span class="cn">NA</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Sex Summary</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>sex_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(sex) <span class="sc">%&gt;%</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">Count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Percent =</span> <span class="fu">round</span>((Count <span class="sc">/</span> <span class="fu">sum</span>(Count)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">Category =</span> sex) <span class="sc">%&gt;%</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Value =</span> <span class="fu">paste</span>(Count, <span class="st">" ("</span>, Percent, <span class="st">"%)"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Drug Summary</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>drug_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(suspect_product_active_ingredients) <span class="sc">%&gt;%</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">Count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Percent =</span> <span class="fu">round</span>((Count <span class="sc">/</span> <span class="fu">sum</span>(Count)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">Category =</span> suspect_product_active_ingredients) <span class="sc">%&gt;%</span></span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Value =</span> <span class="fu">paste</span>(Count, <span class="st">" ("</span>, Percent, <span class="st">"%)"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Outcome Summary</span></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>outcome_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(serious) <span class="sc">%&gt;%</span></span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">Count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Percent =</span> <span class="fu">round</span>((Count <span class="sc">/</span> <span class="fu">sum</span>(Count)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">Category =</span> serious) <span class="sc">%&gt;%</span></span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Value =</span> <span class="fu">paste</span>(Count, <span class="st">" ("</span>, Percent, <span class="st">"%)"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Reporter Type Summary</span></span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>reporter_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(reporter_type) <span class="sc">%&gt;%</span></span>
-<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">Count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Percent =</span> <span class="fu">round</span>((Count <span class="sc">/</span> <span class="fu">sum</span>(Count)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">Category =</span> reporter_type) <span class="sc">%&gt;%</span></span>
-<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Value =</span> <span class="fu">paste</span>(Count, <span class="st">" ("</span>, Percent, <span class="st">"%)"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
-<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Country Summary</span></span>
-<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>country_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
-<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(country_where_event_occurred) <span class="sc">%&gt;%</span></span>
-<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">Count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Percent =</span> <span class="fu">round</span>((Count <span class="sc">/</span> <span class="fu">sum</span>(Count)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">Category =</span> country_where_event_occurred) <span class="sc">%&gt;%</span></span>
-<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Value =</span> <span class="fu">paste</span>(Count, <span class="st">" ("</span>, Percent, <span class="st">"%)"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
-<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Reaction Type Summary</span></span>
-<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the organ system columns</span></span>
-<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>organ_systems <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"organ_system_1"</span>, <span class="st">"organ_system_2"</span>, <span class="st">"organ_system_3"</span>, <span class="st">"organ_system_4"</span>, <span class="st">"organ_system_5"</span>)</span>
-<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>summary_data <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
-<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="fu">all_of</span>(organ_systems)) <span class="sc">%&gt;%</span></span>
-<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">everything</span>(), <span class="at">values_to =</span> <span class="st">"organ_system"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(organ_system)) <span class="sc">%&gt;%</span></span>
-<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(organ_system) <span class="sc">%&gt;%</span></span>
-<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(</span>
-<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>        <span class="at">Count =</span> <span class="fu">n</span>(),</span>
-<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>        <span class="at">Percent =</span> <span class="fu">round</span>((<span class="fu">n</span>() <span class="sc">/</span> <span class="fu">nrow</span>(mydata)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)</span>
-<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
-<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">Category =</span> organ_system) <span class="sc">%&gt;%</span></span>
-<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Value =</span> <span class="fu">paste</span>(Count, <span class="st">" ("</span>, Percent, <span class="st">"%)"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
-<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine all summaries into one table</span></span>
-<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>final_summary_table <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">Category =</span> <span class="st">"Age"</span>, <span class="at">Value =</span> age_summary<span class="sc">$</span>Value, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>),</span>
-<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">Category =</span> <span class="st">"Sex"</span>, <span class="at">Value =</span> <span class="st">""</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>), <span class="co"># Subheading for Sex</span></span>
-<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>    sex_summary <span class="sc">%&gt;%</span> <span class="fu">select</span>(Category, Value),</span>
-<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">Category =</span> <span class="st">""</span>, <span class="at">Value =</span> <span class="st">""</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>), <span class="co"># Blank row after Sex</span></span>
-<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">Category =</span> <span class="st">"Immune Checkpoint Inhibitors"</span>, <span class="at">Value =</span> <span class="st">""</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>), <span class="co"># Subheading for Drugs</span></span>
-<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a>    drug_summary <span class="sc">%&gt;%</span> <span class="fu">select</span>(Category, Value),</span>
-<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">Category =</span> <span class="st">""</span>, <span class="at">Value =</span> <span class="st">""</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>), <span class="co"># Blank row after Drugs</span></span>
-<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">Category =</span> <span class="st">"Outcome"</span>, <span class="at">Value =</span> <span class="st">""</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>), <span class="co"># Subheading for Outcome</span></span>
-<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a>    outcome_summary <span class="sc">%&gt;%</span> <span class="fu">select</span>(Category, Value),</span>
-<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">Category =</span> <span class="st">""</span>, <span class="at">Value =</span> <span class="st">""</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>), <span class="co"># Blank row after Outcome</span></span>
-<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">Category =</span> <span class="st">"Reporter Type"</span>, <span class="at">Value =</span> <span class="st">""</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>), <span class="co"># Subheading for Reporter Type</span></span>
-<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a>    reporter_summary <span class="sc">%&gt;%</span> <span class="fu">select</span>(Category, Value),</span>
-<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">Category =</span> <span class="st">""</span>, <span class="at">Value =</span> <span class="st">""</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>), <span class="co"># Blank row after Reporter Type</span></span>
-<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">Category =</span> <span class="st">"Country"</span>, <span class="at">Value =</span> <span class="st">""</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>), <span class="co"># Subheading for Country</span></span>
-<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a>    country_summary <span class="sc">%&gt;%</span> <span class="fu">select</span>(Category, Value),</span>
-<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">Category =</span> <span class="st">""</span>, <span class="at">Value =</span> <span class="st">""</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>), <span class="co"># Blank row after Country</span></span>
-<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">Category =</span> <span class="st">"Reaction Type"</span>, <span class="at">Value =</span> <span class="st">""</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>), <span class="co"># Subheading for Reaction Type</span></span>
-<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a>    summary_data <span class="sc">%&gt;%</span> <span class="fu">select</span>(Category, Value)</span>
-<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a publication-quality table using kableExtra</span></span>
-<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a>final_summary_table <span class="sc">%&gt;%</span></span>
-<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable</span>(<span class="st">"html"</span>, <span class="at">caption =</span> <span class="st">"Table 1: Descriptive Statistics"</span>, <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Category"</span>, <span class="st">"Value"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>, <span class="st">"condensed"</span>, <span class="st">"responsive"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a>    <span class="fu">column_spec</span>(<span class="dv">1</span>, <span class="at">bold =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a>    <span class="fu">row_spec</span>(<span class="fu">which</span>(final_summary_table<span class="sc">$</span>Category <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Age"</span>, <span class="st">"Sex"</span>, <span class="st">"Immune Checkpoint Inhibitors"</span>, <span class="st">"Outcome"</span>, <span class="st">"Reporter Type"</span>, <span class="st">"Country"</span>, <span class="st">"Reaction Type"</span>)), <span class="at">bold =</span> <span class="cn">TRUE</span>, <span class="at">background =</span> <span class="st">"#f7f7f7"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a>    <span class="fu">footnote</span>(<span class="at">general =</span> <span class="st">"This table summarizes the patient data by various categories."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Summarize Age (Mean and SD)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>age_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(suspect_product_active_ingredients) <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_age =</span> <span class="fu">mean</span>(patient_age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_age =</span> <span class="fu">sd</span>(patient_age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Age, mean years ± SD</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">paste0</span>(<span class="fu">round</span>(mean_age, <span class="dv">1</span>), <span class="st">" ± "</span>, <span class="fu">round</span>(sd_age, <span class="dv">1</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(suspect_product_active_ingredients, <span class="st">`</span><span class="at">Age, mean years ± SD</span><span class="st">`</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Summarize Sex Distribution</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>sex_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(suspect_product_active_ingredients, sex) <span class="sc">%&gt;%</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">'drop'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> sex, <span class="at">values_from =</span> count, <span class="at">values_fill =</span> <span class="fu">list</span>(<span class="at">count =</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">`</span><span class="at">Not Specified (Sex)</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">Not Specified</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(suspect_product_active_ingredients, Male, Female, <span class="st">`</span><span class="at">Not Specified (Sex)</span><span class="st">`</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Summarize Reaction Severity</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>reaction_severity_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(suspect_product_active_ingredients, serious) <span class="sc">%&gt;%</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">'drop'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> serious, <span class="at">values_from =</span> count, <span class="at">values_fill =</span> <span class="fu">list</span>(<span class="at">count =</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Serious =</span> Serious, <span class="st">`</span><span class="at">Non-Serious (Reaction)</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">Non-Serious</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(suspect_product_active_ingredients, Serious, <span class="st">`</span><span class="at">Non-Serious (Reaction)</span><span class="st">`</span>)</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Summarize Outcomes</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>outcomes_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(suspect_product_active_ingredients, outcomes) <span class="sc">%&gt;%</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">'drop'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> outcomes, <span class="at">values_from =</span> count, <span class="at">values_fill =</span> <span class="fu">list</span>(<span class="at">count =</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">`</span><span class="at">Non-Serious (Outcome)</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">Non-Serious</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(suspect_product_active_ingredients, Died, Hospitalized, Disabled, <span class="st">`</span><span class="at">Life Threatening</span><span class="st">`</span>, <span class="st">`</span><span class="at">Non-Serious (Outcome)</span><span class="st">`</span>, <span class="st">`</span><span class="at">Other Outcomes</span><span class="st">`</span>)</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Summarize Reporter Type</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>reporter_type_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(suspect_product_active_ingredients, reporter_type) <span class="sc">%&gt;%</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">'drop'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> reporter_type, <span class="at">values_from =</span> count, <span class="at">values_fill =</span> <span class="fu">list</span>(<span class="at">count =</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(suspect_product_active_ingredients, <span class="st">`</span><span class="at">Healthcare Professional</span><span class="st">`</span>, Consumer)</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Summarize Country</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>country_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(suspect_product_active_ingredients, country_where_event_occurred) <span class="sc">%&gt;%</span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">'drop'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> country_where_event_occurred, <span class="at">values_from =</span> count, <span class="at">values_fill =</span> <span class="fu">list</span>(<span class="at">count =</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">`</span><span class="at">Not Specified (Country)</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">Not Specified</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(suspect_product_active_ingredients, US, <span class="st">`</span><span class="at">Outside US</span><span class="st">`</span>, <span class="st">`</span><span class="at">Not Specified (Country)</span><span class="st">`</span>)</span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine all summaries into one table</span></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>combined_summary <span class="ot">&lt;-</span> age_summary <span class="sc">%&gt;%</span></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(sex_summary, <span class="at">by =</span> <span class="st">"suspect_product_active_ingredients"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(reaction_severity_summary, <span class="at">by =</span> <span class="st">"suspect_product_active_ingredients"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(outcomes_summary, <span class="at">by =</span> <span class="st">"suspect_product_active_ingredients"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(reporter_type_summary, <span class="at">by =</span> <span class="st">"suspect_product_active_ingredients"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(country_summary, <span class="at">by =</span> <span class="st">"suspect_product_active_ingredients"</span>)</span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert all columns (except `suspect_product_active_ingredients`) to character</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>combined_summary <span class="ot">&lt;-</span> combined_summary <span class="sc">%&gt;%</span></span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">-</span>suspect_product_active_ingredients, as.character))</span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a><span class="co"># Transpose the table for Word compatibility</span></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>transposed_table <span class="ot">&lt;-</span> combined_summary <span class="sc">%&gt;%</span></span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>suspect_product_active_ingredients, <span class="at">names_to =</span> <span class="st">"Attribute"</span>, <span class="at">values_to =</span> <span class="st">"Value"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> suspect_product_active_ingredients, <span class="at">values_from =</span> Value)</span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a><span class="co"># Rename columns for clarity</span></span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(transposed_table)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">"Attribute"</span></span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to huxtable object</span></span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a>huxtable_table <span class="ot">&lt;-</span> <span class="fu">as_hux</span>(transposed_table)</span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a><span class="co"># Format the table with huxtable (style, borders, etc.)</span></span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a>huxtable_table <span class="ot">&lt;-</span> huxtable_table <span class="sc">%&gt;%</span></span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_all_borders</span>(<span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_font_size</span>(<span class="dv">12</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_align</span>(<span class="st">"center"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_width</span>(<span class="fl">1.5</span>)</span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the huxtable object, this will render correctly in Word</span></span>
+<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a>huxtable_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="table-responsive">
-<table class="table table-striped table-hover table-condensed caption-top table-sm small" data-quarto-postprocess="true">
-<caption>Table 1: Descriptive Statistics</caption>
-<thead>
-<tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">Category</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Value</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;">Age</td>
-<td style="text-align: left; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;">66.94 ± 17.65</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;">Sex</td>
-<td style="text-align: left; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold;">Female</td>
-<td style="text-align: left;">76 (20.6%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;">Male</td>
-<td style="text-align: left;">259 (70.2%)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold;">Not Specified</td>
-<td style="text-align: left;">34 (9.2%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;">Immune Checkpoint Inhibitors</td>
-<td style="text-align: left; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;">Atezolizumab</td>
-<td style="text-align: left;">69 (18.7%)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold;">Avelumab</td>
-<td style="text-align: left;">33 (8.9%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;">Nivolumab</td>
-<td style="text-align: left;">35 (9.5%)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold;">Pembrolizumab</td>
-<td style="text-align: left;">232 (62.9%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;">Outcome</td>
-<td style="text-align: left; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;">Non-Serious</td>
-<td style="text-align: left;">60 (16.3%)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold;">Serious</td>
-<td style="text-align: left;">309 (83.7%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;">Reporter Type</td>
-<td style="text-align: left; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;">Consumer</td>
-<td style="text-align: left;">51 (13.8%)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold;">Healthcare Professional</td>
-<td style="text-align: left;">318 (86.2%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;">Country</td>
-<td style="text-align: left; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;">Outside US</td>
-<td style="text-align: left;">208 (56.4%)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold;">US</td>
-<td style="text-align: left;">161 (43.6%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;">Reaction Type</td>
-<td style="text-align: left; font-weight: bold; background-color: rgba(247, 247, 247, 255) !important;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;">Cardiovascular</td>
-<td style="text-align: left;">27 (7.3%)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold;">Endocrinological</td>
-<td style="text-align: left;">66 (17.9%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;">Gastrointestinal</td>
-<td style="text-align: left;">69 (18.7%)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold;">Neurological</td>
-<td style="text-align: left;">35 (9.5%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; font-weight: bold;">Other</td>
-<td style="text-align: left;">165 (44.7%)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; font-weight: bold;">Skin</td>
-<td style="text-align: left;">118 (32%)</td>
-</tr>
-</tbody><tfoot>
-<tr class="odd">
-<td style="text-align: left; padding: 0;"><span style="font-style: italic;">Note: </span></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left; padding: 0;"><sup></sup> This table summarizes the patient data by various categories.</td>
-<td style="text-align: left;"></td>
-</tr>
-</tfoot>
-
-</table>
-</div>
-
+<table class="huxtable" data-quarto-disable-processing="true" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; width: 150%; margin-left: auto; margin-right: auto;  ">
+<colgroup><col><col><col><col><col></colgroup><tbody><tr>
+<th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Attribute</th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Atezolizumab</th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Avelumab</th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Nivolumab</th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Pembrolizumab</th></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Age, mean years ± SD</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">64.5 ± 13.2</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">72.2 ± 7.3</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">68.5 ± 13.2</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">66.6 ± 19.7</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Male</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">41</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">25</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">18</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">175</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Female</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">16</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">6</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">5</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">49</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Not Specified (Sex)</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">12</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">2</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">8</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">8</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Serious</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">57</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">30</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">25</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">193</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Non-Serious (Reaction)</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">12</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">3</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">6</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">39</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Died</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">5</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">5</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">2</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">30</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Hospitalized</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">28</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">9</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">7</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">78</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Disabled</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">1</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">0</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">0</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">2</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Life Threatening</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">0</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">1</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">0</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">7</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Non-Serious (Outcome)</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">12</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">3</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">6</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">39</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Other Outcomes</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">23</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">15</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">16</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">76</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Healthcare Professional</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">64</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">31</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">25</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">194</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Consumer</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">5</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">2</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">6</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">38</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">US</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">28</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">4</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">25</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">100</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Outside US</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">22</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">19</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">6</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">129</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">Not Specified (Country)</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">19</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">10</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">0</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 1pt 1pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal; font-size: 12pt;">3</td></tr>
+</tbody></table>
 
 </div>
 </div>
 <p>We save the table.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save to file</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>summarytable_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"results"</span>, <span class="st">"tables"</span>, <span class="st">"summarytable.rds"</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(final_summary_table, <span class="at">file =</span> summarytable_file)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save to file</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>huxtable_table_path <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"results"</span>, <span class="st">"tables"</span>, <span class="st">"summarytable.rds"</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(huxtable_table, <span class="at">file =</span> huxtable_table_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Table 2 - Summarizing organ system reaction by drug type</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load necessary libraries</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(huxtable)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the organ system columns</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>organ_systems <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"organ_system_1"</span>, <span class="st">"organ_system_2"</span>, <span class="st">"organ_system_3"</span>, <span class="st">"organ_system_4"</span>, <span class="st">"organ_system_5"</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform the organ system columns into a single column and calculate counts and percentages</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>organ_system_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(suspect_product_active_ingredients, <span class="fu">all_of</span>(organ_systems)) <span class="sc">%&gt;%</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">all_of</span>(organ_systems), <span class="at">names_to =</span> <span class="st">"Organ_System"</span>, <span class="at">values_to =</span> <span class="st">"Reaction"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(Reaction)) <span class="sc">%&gt;%</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(suspect_product_active_ingredients, Reaction) <span class="sc">%&gt;%</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">Count =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">'drop'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Percent =</span> <span class="fu">round</span>((Count <span class="sc">/</span> <span class="fu">nrow</span>(mydata)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Value =</span> <span class="fu">paste</span>(Count, <span class="st">" ("</span>, Percent, <span class="st">"%)"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Pivot the summary to have reactions as rows and drugs as columns, combining counts and percentages</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>organ_system_pivoted <span class="ot">&lt;-</span> organ_system_summary <span class="sc">%&gt;%</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(suspect_product_active_ingredients, Reaction, Value) <span class="sc">%&gt;%</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> suspect_product_active_ingredients, <span class="at">values_from =</span> Value, <span class="at">values_fill =</span> <span class="fu">list</span>(<span class="at">Value =</span> <span class="st">"0"</span>))</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a huxtable table</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>ht <span class="ot">&lt;-</span> huxtable<span class="sc">::</span><span class="fu">as_hux</span>(organ_system_pivoted)</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Add styling to the table</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>ht <span class="ot">&lt;-</span> ht <span class="sc">%&gt;%</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_bold</span>(<span class="dv">1</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(ht)) <span class="sc">%&gt;%</span>  <span class="co"># Bold the first row (header)</span></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_caption</span>(<span class="st">"Immune Checkpoint Inhibitors by Organ System and Reaction"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_width</span>(<span class="dv">1</span>)                  <span class="co"># Set column width to make the table more compact</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the table</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>ht</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="huxtable" data-quarto-disable-processing="true" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; width: 100%; margin-left: auto; margin-right: auto;  ">
+<caption style="caption-side: top; text-align: center;">Immune Checkpoint Inhibitors by Organ System and Reaction</caption><colgroup><col><col><col><col><col></colgroup><tbody><tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Reaction</th><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Atezolizumab</th><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Avelumab</th><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Nivolumab</th><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Pembrolizumab</th></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Cardiovascular</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">4 (1.1%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">5 (1.4%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1 (0.3%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">17 (4.7%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Endocrinological</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">13 (3.6%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">6 (1.6%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">5 (1.4%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">42 (11.5%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Gastrointestinal</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">16 (4.4%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">6 (1.6%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">6 (1.6%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">41 (11.2%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Neurological</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">6 (1.6%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1 (0.3%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">3 (0.8%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">25 (6.8%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Other</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">13 (3.6%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">12 (3.3%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">9 (2.5%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">79 (21.6%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Renal</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">9 (2.5%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">3 (0.8%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">4 (1.1%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">14 (3.8%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Respiratory</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">3 (0.8%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1 (0.3%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">3 (0.8%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">11 (3%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Skin</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">27 (7.4%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">7 (1.9%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">6 (1.6%)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">78 (21.4%)</td></tr>
+</tbody></table>
+
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Save the table</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>ht_path <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"results"</span>, <span class="st">"tables"</span>, <span class="st">"summarytable1.rds"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(ht, <span class="at">file =</span> ht_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="data-exploration-through-figures" class="level1">
 <h1>Data exploration through figures</h1>
 <p>Bar graph for outcomes by drugs.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define custom colors for the 'serious' variable</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>custom_colors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Serious"</span> <span class="ot">=</span> <span class="st">"#d7191c"</span>,  <span class="co"># Red for serious</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Non-Serious"</span> <span class="ot">=</span> <span class="st">"#2c7bb6"</span>    <span class="co"># Blue for non-serious</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the plot with custom colors for 'serious'</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> suspect_product_active_ingredients, <span class="at">fill =</span> serious)) <span class="sc">+</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"stack"</span>) <span class="sc">+</span> <span class="co"># Use "stack" for stacked bars</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> custom_colors) <span class="sc">+</span> <span class="co"># Apply custom colors</span></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Bar Plot of Outcomes of Immune Checkpoint Inhibitors"</span>,</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Immune Checkpoint Inhibitors"</span>,</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Count"</span>,</span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">fill =</span> <span class="st">"Outcomes"</span></span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="co"># Rotate x-axis labels for readability</span></span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the plot</span></span>
-<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="eda_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>figure_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"results"</span>, <span class="st">"figures"</span>,<span class="st">"figure1.png"</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="at">filename =</span> figure_file, <span class="at">plot=</span>p1) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Saving 7 x 5 in image</code></pre>
-</div>
-</div>
-<p>Now let’s look at the bar graph by type of organ system.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> summary_data <span class="sc">%&gt;%</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Category, Count), <span class="at">y =</span> Count)) <span class="sc">+</span> <span class="co"># Reorder by Count ascending</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#1f77b4"</span>) <span class="sc">+</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Bar Plot of Reaction Types"</span>,</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Organ System"</span>,</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Count"</span>,</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">caption =</span> <span class="st">"Percentages are shown in parentheses"</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> Value), <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.1</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span> <span class="co"># Adjust label position</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">coord_flip</span>() <span class="co"># Flip the axes</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the plot</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define custom colors for the 'serious' variable</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>custom_colors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Serious"</span> <span class="ot">=</span> <span class="st">"#d7191c"</span>,  <span class="co"># Red for serious</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Non-Serious"</span> <span class="ot">=</span> <span class="st">"#2c7bb6"</span>    <span class="co"># Blue for non-serious</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the plot with custom colors for 'serious'</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> suspect_product_active_ingredients, <span class="at">fill =</span> serious)) <span class="sc">+</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"stack"</span>) <span class="sc">+</span> <span class="co"># Use "stack" for stacked bars</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> custom_colors) <span class="sc">+</span> <span class="co"># Apply custom colors</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Bar Plot of Outcomes of Immune Checkpoint Inhibitors"</span>,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Immune Checkpoint Inhibitors"</span>,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Count"</span>,</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">fill =</span> <span class="st">"Outcomes"</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="co"># Rotate x-axis labels for readability</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the plot</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -470,8 +383,80 @@ Attaching package: 'kableExtra'</code></pre>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>figure_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"results"</span>, <span class="st">"figures"</span>,<span class="st">"figure2.png"</span>)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="at">filename =</span> figure_file, <span class="at">plot=</span>p2) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>figure_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"results"</span>, <span class="st">"figures"</span>,<span class="st">"figure1.png"</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="at">filename =</span> figure_file, <span class="at">plot=</span>p1) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Saving 7 x 5 in image</code></pre>
+</div>
+</div>
+<p>Now let’s look at the bar graph by type of organ system.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the organ system columns</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>organ_systems <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"organ_system_1"</span>, <span class="st">"organ_system_2"</span>, <span class="st">"organ_system_3"</span>, <span class="st">"organ_system_4"</span>, <span class="st">"organ_system_5"</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a summary dataset for reactions across all organ systems</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>organ_system_summary <span class="ot">&lt;-</span> mydata <span class="sc">%&gt;%</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="fu">all_of</span>(organ_systems)) <span class="sc">%&gt;%</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"Organ_System"</span>, <span class="at">values_to =</span> <span class="st">"Reaction"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(Reaction)) <span class="sc">%&gt;%</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(Reaction) <span class="sc">%&gt;%</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">Count =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">'drop'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Percent =</span> <span class="fu">round</span>((Count <span class="sc">/</span> <span class="fu">sum</span>(Count)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Value =</span> <span class="fu">paste</span>(Count, <span class="st">" ("</span>, Percent, <span class="st">"%)"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="co"># View the summary dataset</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>organ_system_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="huxtable" data-quarto-disable-processing="true" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  ">
+<colgroup><col><col><col><col></colgroup><tbody><tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0.4pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Reaction</th><th style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Count</th><th style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Percent</th><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0.4pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Value</th></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">Cardiovascular</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">27</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">5.7</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0.4pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">27 (5.7%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Endocrinological</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">66</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">13.9</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">66 (13.9%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">Gastrointestinal</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">69</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">14.5</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">69 (14.5%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Neurological</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">35</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">7.4</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">35 (7.4%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">Other</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">113</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">23.7</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">113 (23.7%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Renal</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">30</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">6.3</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">30 (6.3%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">Respiratory</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">18</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">3.8</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; background-color: rgb(242, 242, 242); font-weight: normal;">18 (3.8%)</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0.4pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Skin</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">118</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">24.8</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">118 (24.8%)</td></tr>
+</tbody></table>
+
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the reaction types with counts and percentages</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> organ_system_summary <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Reaction, Count), <span class="at">y =</span> Count)) <span class="sc">+</span>  <span class="co"># Reorder by Count</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#1f77b4"</span>) <span class="sc">+</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Bar Plot of Reaction Types"</span>,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Reaction Type"</span>,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Count"</span>,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">caption =</span> <span class="st">"Percentages are shown in parentheses"</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> Value), <span class="at">hjust =</span> <span class="fl">1.1</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span>  <span class="co"># Adjust label position to avoid overlap</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">coord_flip</span>() <span class="sc">+</span>  <span class="co"># Flip the axes to make it horizontal</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">10</span>, <span class="dv">50</span>, <span class="dv">10</span>, <span class="dv">10</span>)  <span class="co"># Add margin to the right side to avoid label cut-off</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the plot</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="eda_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>figure_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"results"</span>, <span class="st">"figures"</span>,<span class="st">"figure2.png"</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="at">filename =</span> figure_file, <span class="at">plot=</span>p2) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Saving 7 x 5 in image</code></pre>
 </div>
