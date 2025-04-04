@@ -924,84 +924,82 @@ all_results <- bind_rows(
   results_table_nephritis
 )
 
-# Pivot data to get reactions as rows and drugs as grouped columns with subcolumns for PRR, ROR, and IC
+# Pivot data to get reactions as rows and drugs as grouped columns
 summary_table <- all_results %>%
-  pivot_wider(names_from = Drug, values_from = c(PRR, ROR, IC),
-              names_glue = "{Drug} {.value} (95% CI)")
+  pivot_wider(
+    names_from = Drug, 
+    values_from = c(PRR, ROR, IC),
+    names_glue = "{Drug} {.value} (95% CI)"
+  )
 
-# Check the structure of the table and columns
-colnames(summary_table)
-
-# Highlight significant values using conditional bolding (PRR > 1, ROR > 1, IC > 0)
-summary_table <- summary_table %>%
-  mutate(across(starts_with("PRR"), ~ ifelse(. > 1 & grepl("\\(1", .), "bold", .))) %>%
-  mutate(across(starts_with("ROR"), ~ ifelse(. > 1 & grepl("\\(1", .), "bold", .))) %>%
-  mutate(across(starts_with("IC"), ~ ifelse(. > 0 & grepl("\\(0", .), "bold", .)))
-
-# Split the summary_table into 4 separate tables for each drug
-# Table for Atezolizumab
-table_atezolizumab <- summary_table %>%
-  select(Reaction, starts_with("Atezolizumab")) %>%
-  as_hux() %>%
-  set_bold(1, 1:ncol(.)) %>%
-  set_caption("Atezolizumab Drug-Reaction Analysis") %>%
-  set_width(1) 
-
-# Apply bolding for significant values for Atezolizumab
-for (i in 2:ncol(table_atezolizumab)) {
-  table_atezolizumab <- table_atezolizumab %>%
-    set_bold(which(table_atezolizumab[, i] == "bold"), i)
+# Function to create formatted tables with WORKING conditional formatting
+create_drug_table <- function(drug_name, summary_data) {
+  # Select relevant columns
+  drug_table <- summary_data %>%
+    select(Reaction, starts_with(drug_name)) %>%
+    as_hux(add_colnames = TRUE)
+  
+  # Basic formatting
+  drug_table <- drug_table %>%
+    set_bold(1, everywhere, TRUE) %>%          # Bold headers
+    set_align(everywhere, everywhere, "center") %>%
+    set_all_borders(brdr(1, "solid")) %>%      # Solid borders
+    set_all_padding(4) %>%                     # Cell padding
+    set_font_size(10) %>%                      # Font size
+    set_width(0.9)                             # Table width
+  
+  # Add caption as merged header row
+  drug_table <- insert_row(drug_table, 
+                         c(paste(drug_name, "Drug-Reaction Analysis"), 
+                           rep("", ncol(drug_table)-1)), 
+                         after = 0) %>%
+    set_colspan(1, 1, ncol(drug_table)) %>%
+    set_bold(1, everywhere, TRUE) %>%          # Bold title
+    set_background_color(1, everywhere, "gray95") %>%
+    set_font_size(1, everywhere, 12)
+  
+  # Apply conditional formatting - SIMPLIFIED AND WORKING VERSION
+  if (ncol(drug_table) > 1) {
+    for (i in 2:ncol(drug_table)) {
+      # Get the column type (PRR, ROR, or IC)
+      col_type <- colnames(drug_table)[i]
+      
+      # Process each row (skip header row)
+      for (j in 2:nrow(drug_table)) {
+        cell_value <- as.character(drug_table[j, i])
+        
+        # Extract the first number (point estimate)
+        point_est <- as.numeric(gsub("([0-9.]+).*", "\\1", cell_value))
+        
+        # Extract the first number in parentheses (CI lower bound)
+        ci_lower <- as.numeric(gsub(".*\\(([0-9.]+).*", "\\1", cell_value))
+        
+        # Check significance
+        if (!is.na(point_est) && !is.na(ci_lower)) {
+          if (grepl("PRR|ROR", col_type) && point_est > 1 && ci_lower > 1) {
+            drug_table <- set_bold(drug_table, j, i, TRUE)
+          } else if (grepl("IC", col_type) && point_est > 0 && ci_lower > 0) {
+            drug_table <- set_bold(drug_table, j, i, TRUE)
+          }
+        }
+      }
+    }
+  }
+  
+  return(drug_table)
 }
 
-# Table for Avelumab
-table_avelumab <- summary_table %>%
-  select(Reaction, starts_with("Avelumab")) %>%
-  as_hux() %>%
-  set_bold(1, 1:ncol(.)) %>%
-  set_caption("Avelumab Drug-Reaction Analysis") %>%
-  set_width(1)
+# Create all tables
+table_atezolizumab <- create_drug_table("Atezolizumab", summary_table)
+table_avelumab <- create_drug_table("Avelumab", summary_table)
+table_nivolumab <- create_drug_table("Nivolumab", summary_table)
+table_pembrolizumab <- create_drug_table("Pembrolizumab", summary_table)
 
-# Apply bolding for significant values for Avelumab
-for (i in 2:ncol(table_avelumab)) {
-  table_avelumab <- table_avelumab %>%
-    set_bold(which(table_avelumab[, i] == "bold"), i)
-}
-
-# Table for Nivolumab
-table_nivolumab <- summary_table %>%
-  select(Reaction, starts_with("Nivolumab")) %>%
-  as_hux() %>%
-  set_bold(1, 1:ncol(.)) %>%
-  set_caption("Nivolumab Drug-Reaction Analysis") %>%
-  set_width(1)
-
-# Apply bolding for significant values for Nivolumab
-for (i in 2:ncol(table_nivolumab)) {
-  table_nivolumab <- table_nivolumab %>%
-    set_bold(which(table_nivolumab[, i] == "bold"), i)
-}
-
-# Table for Pembrolizumab
-table_pembrolizumab <- summary_table %>%
-  select(Reaction, starts_with("Pembrolizumab")) %>%
-  as_hux() %>%
-  set_bold(1, 1:ncol(.)) %>%
-  set_caption("Pembrolizumab Drug-Reaction Analysis") %>%
-  set_width(1)
-
-# Apply bolding for significant values for Pembrolizumab
-for (i in 2:ncol(table_pembrolizumab)) {
-  table_pembrolizumab <- table_pembrolizumab %>%
-    set_bold(which(table_pembrolizumab[, i] == "bold"), i)
-}
-
-# Display each table
+# Display tables
 table_atezolizumab
 table_avelumab
 table_nivolumab
-table_pembrolizumab
-
-
+table_pembrolizumab 
 ```
 
 ```{r}
@@ -1022,4 +1020,185 @@ saveRDS(table_avelumab, file = table_avelumab_path)
 saveRDS(table_nivolumab, file = table_nivolumab_path)
 saveRDS(table_pembrolizumab, file = table_pembrolizumab_path)
 ```
+
+Now, we use machine learning methods (random forest) to assess severity of reaction based on age, sex and drug. 
+
+```{r}
+library(tidyverse)
+library(randomForest) # For Random Forest
+library(xgboost)     # For XGBoost
+library(caret)       # For preprocessing
+
+glimpse(mydata)
+
+# Check factor levels and missingness
+summary(mydata[c("suspect_product_active_ingredients", "sex", "patient_age", "serious")])
+
+# Class distribution
+table(mydata$serious)  # Check for imbalance (e.g., 70% non-serious vs. 30% serious)
+```
+
+We see missing data and imbalance of outcomes. First, we impute age for the missing data.
+```{r}
+library(tidyverse)
+library(randomForest)
+
+df_clean <- mydata %>%
+  mutate(
+    # Convert to factors (critical for ML)
+    suspect_product_active_ingredients = factor(suspect_product_active_ingredients),
+    sex = factor(sex),
+    serious = factor(serious),
+    
+    # Impute missing age with median (stratified by sex to preserve trends)
+    patient_age = ifelse(
+      is.na(patient_age),
+      median(patient_age, na.rm = TRUE),
+      patient_age
+    )
+  )
+```
+
+Now, we split the data:
+```{r}
+library(caret)
+set.seed(123)
+
+# Stratified split (70% train, 30% test)
+train_index <- createDataPartition(
+  df_clean$serious, 
+  p = 0.7, 
+  list = FALSE,
+  times = 1
+)
+
+train_data <- df_clean[train_index, ]
+test_data <- df_clean[-train_index, ]
+
+# Verify class balance in both sets
+table(train_data$serious)  # Should be ~70% of original counts
+table(test_data$serious)   # Should be ~30%
+```
+We can see the split has happened correctly, and the imbalance is there. Let's use inverse weighting to deal with the imbalance, and then fit a random forest model.
+
+```{r}
+library(randomForest)
+
+# 1. Verify factor levels (critical!)
+levels(train_data$serious)  # Must return: [1] "Non-Serious" "Serious"
+
+# 2. Calculate class weights (EXACT names and case)
+class_weights <- c(
+  "Non-Serious" = sum(train_data$serious == "Serious") / nrow(train_data),  # Majority class weight
+  "Serious" = sum(train_data$serious == "Non-Serious") / nrow(train_data)    # Minority class weight
+)
+```
+
+Now, let's build a random forest model using cross-validation.
+
+```{r}
+library(randomForest)
+library(caret)
+library(pROC)
+
+# Ensure `serious` is a factor
+train_data$serious <- as.factor(train_data$serious)
+
+# Define class weights based on inverse frequency
+class_counts <- table(train_data$serious)
+class_weights <- 1 / class_counts  # Inverse class frequency weighting
+class_weights <- setNames(as.numeric(class_weights), names(class_counts))  # Ensure correct names
+
+# Perform 5-fold cross-validation
+set.seed(123)
+k_folds <- 5
+folds <- createFolds(train_data$serious, k = k_folds, list = TRUE)
+
+cv_results <- lapply(folds, function(fold_idx) {
+  train_fold <- train_data[-fold_idx, ]
+  test_fold  <- train_data[fold_idx, ]
+  
+  # Train Random Forest model
+  rf_model <- randomForest(
+    serious ~ suspect_product_active_ingredients + sex + patient_age,
+    data = train_fold,
+    classwt = class_weights,  # Correct class weights
+    strata = train_fold$serious,
+    sampsize = rep(min(table(train_fold$serious)), 2),
+    ntree = 500,
+    importance = TRUE,
+    na.action = na.roughfix
+  )
+
+  # Make predictions
+  preds <- predict(rf_model, newdata = test_fold, type = "response")
+  probs <- predict(rf_model, newdata = test_fold, type = "prob")[, 2]  # Get probabilities for ROC
+
+  # Compute confusion matrix
+  cm <- confusionMatrix(preds, test_fold$serious)
+
+  # Compute evaluation metrics
+  accuracy  <- cm$overall["Accuracy"]
+  precision <- cm$byClass["Precision"]
+  recall    <- cm$byClass["Recall"]
+  f1_score  <- 2 * (precision * recall) / (precision + recall)
+
+  # Compute AUC-ROC
+  roc_curve <- roc(as.numeric(test_fold$serious), probs)
+  auc_value <- auc(roc_curve)
+
+  return(c(accuracy, precision, recall, f1_score, auc_value))
+})
+
+library(huxtable)
+
+# Assuming cv_results_df is already created as shown in your code
+cv_results_df <- as.data.frame(do.call(rbind, cv_results))
+colnames(cv_results_df) <- c("Accuracy", "Precision", "Recall", "F1-Score", "AUC-ROC")
+
+# Compute average metrics and create a summary table
+avg_metrics <- colMeans(cv_results_df)
+metrics_table <- data.frame(
+  Metric = names(avg_metrics),
+  Value = round(avg_metrics, 4)  # Round to 4 decimal places
+)
+
+library(huxtable)
+
+# Create the metrics data frame
+metrics_table <- data.frame(
+  Metric = c("Accuracy", "Precision", "Recall", "F1-Score", "AUC-ROC"),
+  Value = round(avg_metrics, 4)  # Using your computed avg_metrics
+)
+
+clean_table <- as_hux(metrics_table) %>%
+  # Formatting
+  set_bold(1, everywhere) %>%           # Bold header row only
+  set_align(everywhere, everywhere, "center") %>%  # Center all cells
+  set_width(0.6) %>%                    # Set table width
+  set_font_size(10) %>%                 # Font size
+  # Borders (the key fix)
+  set_all_borders(1) %>%                # All cell borders (1 = thin line)
+  set_outer_borders(2)                  # Thicker outer border (2 = thicker)
+
+# Print the table
+clean_table
+
+```
+```{r}
+# Define paths for saving each table
+clean_table_path <- here("results", "tables", "randomforesttable.rds")
+
+# Save all four tables to their respective paths
+saveRDS(clean_table, file = clean_table_path)
+```
+
+
+We can see that the accuracy is quite low (25.3%) - thus, the model is only able to make correct predictions 25% of the time. 
+There are many false positives (Precision: 16.61%).
+The model is able to capture 87.78% of positives, but at the cost of correctly predicting negatives.
+The AUC-ROC is low, thus the model is not able to distinguish between positives and negatives effectively.
+
+If we had a larger dataset, or more variables, we might be able to build a better model.
+I will explore more modifications and complex methods in part 5.
 

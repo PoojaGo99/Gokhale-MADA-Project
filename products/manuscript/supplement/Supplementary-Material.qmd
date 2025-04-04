@@ -1,47 +1,26 @@
 ---
 title: "Supplement to Example Manuscript Template for a Data Analysis Project"
 format:
-  pdf:
+  docx:
     toc: false
     number-sections: true
     highlight-style: github
-bibliography: ../../assets/dataanalysis-references.bib
-csl: ../../assets/american-journal-of-epidemiology.csl
+bibliography: ../../../assets/dataanalysis-references.bib
+csl: ../../../assets/nlm-style.csl
 ---
-
-
-```{r, echo=FALSE, message=FALSE}
-# load a few R packages
-library(here)
-library(knitr)
-```
-
-
-
-
-This shows some materials that could go into a supplementary file. Often you want/need references here too. You can use the same reference bib file for this and the main text (as done here) or have separate bib files.
-
-For illustrative purposes, I'm doing the supplement as pdf. For this to work, you need a (La)TeX system installed. It's easy. Just follow [these steps](https://quarto.org/docs/output-formats/pdf-basics.html).
-
-Of course you would choose the format based on needs.
-
-I'm also using a different style for the references here. (vancouver vs apa in the main manuscript). Usually one would have the formatting of the references the same in those two documents, but I want to illustrate how easy it is to switch reference formatting styles, you just need to get the right CSL file and specify it in the YAML header. We could also have a seperate reference bibtext (`.bib`) file, but here we are using the same.
-
-
-{{< pagebreak >}}
-
-
-
 
 # Overview
 
-A quick overview of what readers can find in the supplement.
+This supplement has a few exploratory figures and discussion of additional methods that can be used for disproportionality analysis.
 
 
 # Code and file information
 
-Explain here what each code/file is and does, and in which order (if any) users need to run thing to reproduce everything.
-Essentially, give a full set of instructions to re-generate everything.
+To reproduce this study:
+First run the processing code file. This processed the raw data in the 'data' subfolder and saves it as an rds file.
+Then, run the exploratory data (eda) code file. This file produces summary tables and figures.
+The figures are available in this supplement.
+Then, run the analysis file. This conducts a disproportionality analysis and runs a random forest model to assess serious vs non-serious cases based on age, sex, and ICI.
 
 
 {{< pagebreak >}}
@@ -49,50 +28,39 @@ Essentially, give a full set of instructions to re-generate everything.
 
 # Additional Method Details
 
-Often, the main manuscript only allows for an overview description of the methods. Use the supplement to describe all your methods, models and approaches in a lot of detail. Reference specific parts of your code as needed.
-
+This part will be updated in part 5 - after improving the random forest code.
 {{< pagebreak >}}
 
 
 # Additional results
 
-Show additional results here. Those can be some useful exploratory/descriptive figures or tables, or results from additional analyses that didn't make it into the main text.
 
-
-## Example additional result
-
-
-@tbl-resulttable1 shows an additional table summarizing a model fit.
+@fig-result shows the number of reactions by drug, along with the seriousness of the reaction.
 
 ```{r}
-#| label: tbl-resulttable1
-#| tbl-cap: "Another fit table."
+#| label: fig-result
+#| fig-cap: "Bar chart of outcome of immune checkpoint inhibitors"
 #| echo: FALSE
-resulttable1 = readRDS(here("results","tables","resulttable1.rds"))
-knitr::kable(resulttable1)
+library(here)
+library(knitr)
+knitr::include_graphics(here("results","figures","figure1.png"))
 ```
 
-
-
-@fig-result2 shows a scatterplot figure produced by one of the R scripts.
-
+@fig-result1 shows the bar chart by type of organ system involved in the reaction.
 
 ```{r}
-#| label: fig-result2
-#| fig-cap: "Height and weight."
+#| label: fig-result1
+#| fig-cap: "Bar chart of types of reactions"
 #| echo: FALSE
-knitr::include_graphics(here("results","figures","height-weight.png"))
+knitr::include_graphics(here("results","figures","figure2.png"))
 ```
-
-
-{{< pagebreak >}}
 
 
 # Discussion
 
-Any additional discussion regarding the supplementary material/findings.
+Additional discussion will be done in part 5 after improving the random effects model.
+[@Leslie2025-lp] is a placeholder reference.
 
-These papers [@mckay2020; @mckay2020a] are good examples of papers published using a fully reproducible setup similar to the one shown in this template. 
 
 {{< pagebreak >}}
 

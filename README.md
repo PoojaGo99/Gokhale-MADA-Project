@@ -1,11 +1,6 @@
-# Overview
-
-A template file and folder structure for a data analysis project/paper done with R/Quarto/Github. Other components (e.g., other programming languages) can be added as needed. 
-
-
 # Pre-requisites
 
-This is a template for a data analysis project using R, Quarto, Github and a reference manager that can handle bibtex. Our recommendation for the reference manager is Zotero, with the Better BibTex plugin/extension. It is also assumed that you have a word processor installed (e.g. MS Word or [LibreOffice](https://www.libreoffice.org/)). You need that software stack to make use of this template. To produce pdf output, you need a TeX distribution installed. You can use tinytex, following [these instructions.](https://quarto.org/docs/output-formats/pdf-basics.html)
+This is a data analysis project using R, Quarto, Github and a reference manager that can handle bibtex. Our recommendation for the reference manager is Zotero, with the Better BibTex plugin/extension. It is also assumed that you have a word processor installed (e.g. MS Word or [LibreOffice](https://www.libreoffice.org/)). You need that software stack to make use of this template. To produce pdf output, you need a TeX distribution installed. You can use tinytex, following [these instructions.](https://quarto.org/docs/output-formats/pdf-basics.html)
 
 
 # Template structure and content
@@ -54,7 +49,9 @@ If you plan to use `renv`, start by reading [the introduction to `renv` article]
 
 
 # Getting started
-
-This is a Github template repository. The best way to get it and start using it is [by following these steps.](https://help.github.com/en/articles/creating-a-repository-from-a-template)
-
-Once you got the repository, you can check out the examples by executing them in order. First run the processing code, which will produce the processed data. Then run the analysis scripts, which will take the processed data and produce some results. Then you can run the manuscript, poster and slides example files in any order. Those files pull in the generated results and display them. These files also pull in references from the `bibtex` file and format them according to the CSL style.
+First run the processing code, which will produce the processed data. 
+Then run the exploratory data code (eda).
+Then run the analysis scripts, which will take the processed data and produce some results.
+Then you can run the manuscript files. 
+Those files pull in the generated results and display them. T
+hese files also pull in references from the `bibtex` file and format them according to the CSL style.

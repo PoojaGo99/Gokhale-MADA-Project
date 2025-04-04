@@ -13,6 +13,7 @@ csl: ../../assets/nlm-style.csl
 ```{r, echo=FALSE, message=FALSE}
 # load a few R packages
 library(here)
+library(huxtable)
 library(knitr)
 ```
 
@@ -30,11 +31,13 @@ $\land$ Corresponding author: poojaGokhale\@uga.edu
 
 # Summary/Abstract
 
-*Background: Bladder cancer is the ninth most common type of cancer worldwide. Treatment options include surgery, chemotherapy and immunotherapy. Immune checkpoint inhibitors (ICIs) are a class of immunotherapeutic agents recommended for the treatment of bladder cancer. ICIs have been associated with certain immune-related adverse events (irAEs)*
+Background: Bladder cancer is the ninth most common type of cancer worldwide. Treatment options include surgery, chemotherapy and immunotherapy. Immune checkpoint inhibitors (ICIs) are a class of immunotherapeutic agents recommended for the treatment of bladder cancer. ICIs have been associated with certain immune-related adverse events (irAEs)
 
-*Methods: Reports in the FAERS dashbaord through December 2024 were analyzed for irAEs to four ICIs recommended in bladder cancer - atezolizumab, avelumab, nivolumab, and pembrolizumab. Standardized queries were used to identify cases of rash, pruritus, hypothyroidism, hyperthyroidism, colitis, hepatitis, and nephritis. Descriptive and disproportionality analyses were performed to detect safety signals.*
+Methods: Reports in the FAERS dashbaord through December 2024 were analyzed for irAEs to four ICIs recommended in bladder cancer - atezolizumab, avelumab, nivolumab, and pembrolizumab. Standardized queries were used to identify cases of rash, pruritus, hypothyroidism, hyperthyroidism, colitis, hepatitis, and nephritis. Descriptive and disproportionality analyses were performed to detect safety signals.
 
-*Results: To be added in Part 4*
+Results: Out of 2948 cases identified from FAERS, 365 cases with irAEs were analyzed. The largest number of cases were reported for pembrolizumab (n=307), followed by atezolizumab (n = 91), avelumab (n = 41), and nivolumab (n =37). Pembrolizumab was found to have safety signals for all irAEs considered together (PRR: 1.8 (1.52, 2.14), ROR: 2.07 (1.69, 2.55), IC:	0.36 (0.29, 0.44)). A safety signal was also found for rash (PRR: 2.11 (1.17, 3.8), ROR:	2.14 (1.18, 3.9), IC:	0.44 (0.17, 0.71)). Safety signals for atezolizumab included hyperthyroidism and nephritis, while hypothyroidism was identified as a concern for avelumab.
+
+Conclusion: Immune-related adverse events are found to be associated with immune checkpoint inhibitor therapy in bladder cancer. Pembrolizumab appears to have the highest risk, though this may be due to its early approval (2014). Appropriate treatment guidelines must be developed to address the management of irAEs associated with ICI therapy in bladder cancer.
 
 {{< pagebreak >}}
 
@@ -42,47 +45,61 @@ $\land$ Corresponding author: poojaGokhale\@uga.edu
 
 ## General Background Information
 
-*Bladder cancer is the ninth most common type of cancer, according to a 2022 report published by the International Agency for Research on Cancer [@Bray2024]. The American Cancer Society estimates approximately 85,000 new bladder cancer cases, and approximately 17,000 bladder cancer deaths in the United States in 2025.*
+Bladder cancer is the ninth most common type of cancer, according to a 2022 report published by the International Agency for Research on Cancer [@Bray2024]. The American Cancer Society estimates approximately 85,000 new bladder cancer cases, and approximately 17,000 bladder cancer deaths in the United States in 2025.
 
-*The cancer is more common in males than in females, with a male:female ratio of about 4:1[@Leslie2025-lp]. Risk factors for bladder cancer include smoking and occupational chemical exposures (in particular, aromatic amines and polycyclic aromatic hydrocarbons). Certain dietary factors, impaired microbiome, and pelvic radiotherapy may also increase the risk of bladder cancer [@Jubber2023].*
+The cancer is more common in males than in females, with a male-female ratio of about 4:1[@Leslie2025-lp]. Risk factors for bladder cancer include smoking and occupational chemical exposures (in particular, aromatic amines and polycyclic aromatic hydrocarbons). Certain dietary factors, impaired microbiome, and pelvic radiotherapy may also increase the risk of bladder cancer [@Jubber2023].
 
-*Treatment of bladder cancer is multifaceted and depends on the type of tumor. Surgical resection, adjuvant and intravesical chemotherapy, Bacillus Calmette–Guérin (BCG) immunotherapy, and systemic chemotherapy are the different treatment options available [@Leslie2025-lp].*
+Treatment of bladder cancer is multifaceted and depends on the type of tumor. Surgical resection, adjuvant and intravesical chemotherapy, Bacillus Calmette–Guérin (BCG) immunotherapy, and systemic chemotherapy are the different treatment options available [@Leslie2025-lp].
 
-*According to the National comprehensive Cancer Network (NCCN) guidelines, immunotherapy with immune checkpoint inhibitors (ICIs) is recommended at various stages of bladder cancer treatment. ICIs such as pembrolizumab, atezolizumab, nivolumab, and avelumab are FDA approved and recommended for the adjuvant and first and second-line treatment of bladder cancer [@Flaig2024].*
+According to the National Comprehensive Cancer Network (NCCN) guidelines, immunotherapy with immune checkpoint inhibitors (ICIs) is recommended at various stages of bladder cancer treatment. ICIs such as pembrolizumab, atezolizumab, nivolumab, and avelumab are FDA approved and recommended for the adjuvant and first and second-line treatment of bladder cancer [@Flaig2024].
 
-*ICIs are associated with various adverse effects, particularly with immune-related adverse events (irAEs) such as pnemonitis, hepatitis, colitis, hypothyroidism, dermatitis, and others [@Yin2023].This study aims to analyze real-world adverse event data from the FDA Adverse Event Reporting System associated with ICI therapy in bladder cancer.*
+ICIs are associated with various adverse effects, particularly with immune-related adverse events (irAEs) such as pneumonitis, hepatitis, colitis, hypothyroidism, dermatitis, and others [@Yin2023].This study aims to analyze real-world adverse event data from the FDA Adverse Event Reporting System associated with ICI therapy in bladder cancer.
 
 
 ## Description of data and data source
 
-*The United States Food and Drug Administration (FDA) maintains a dashboard of adverse event reports in the FDA Adverse Event Reporting System (FAERS) [@us2018fda]. FAERS is a publicly available dashboard of safety reports submitted by patients, healthcare professionals, and pharmaceutical companies.*
+The United States Food and Drug Administration (FDA) maintains a dashboard of adverse event reports in the FDA Adverse Event Reporting System (FAERS) [@us2018fda]. FAERS is a publicly available dashboard of safety reports submitted by patients, healthcare professionals, and pharmaceutical companies.
 
-*Since FAERS consists of self-reported data from multiple sources, there may be duplicates, missing data as well as various errors. The findings of this study should be considered in context of this data limitation.*
+Since FAERS consists of self-reported data from multiple sources, there may be duplicates, missing data as well as various errors. The findings of this study should be considered in context of this data limitation.
 
 
 ## Questions/Hypotheses to be addressed
 
-*The study aims to analyze whether irAEs associated with ICIs generate a signal of disproportionate reporting (SDR). The goal is to determine whether irAEs associated with ICIs in baldder cancer are greater than expected, and thus further research and strategies to deal with these adverse events is required.*
+The study aims to analyze whether irAEs associated with ICIs generate a signal of disproportionate reporting (SDR). The goal is to determine whether irAEs associated with ICIs in baldder cancer are greater than expected, and thus further research and strategies to deal with these adverse events is required.
 
 {{< pagebreak >}}
 
 # Methods
 
-*Describe your methods. That should describe the data, the cleaning processes, and the analysis approaches. You might want to provide a shorter description here and all the details in the supplement.* *This part has not been completed. The source code has been left as is* *Details have been provided in the data acquisition and statistical analysis parts.*
+The FAERS dashboard was searched by product to obtain cases related to the use of ICIs in bladder cancer. This data was then filtered to retain only irAE cases. Other adverse events and duplicate cases were removed. Following this, the demographic and drug characteristics were summarized.
+
+To assess whether an ICI has a safety signal associated with a particular irAE, three metrics were used:
+1. Proportional reporting ratio (PRR):
+This approach compares the proportion of reports for a specific adverse event with a drug of interest to the proportion of the same event reported for all other drugs.
+
+2. Reporting odds ratio (ROR):
+This metric is obtained by comparing the ratio of a drug's adverse event reports to all other reports for that drug against the same ratio across all drugs.
+
+3. Information component (IC):
+For this metric, the observed vs. expected reporting of a drug-adverse event combination is compared.
+
+A random forest model was fit to distinguish between serious and non-serious cases on the basis of age, sex, and ICI.
 
 ## Data aquisition
 
-*In order to obtain the FAERS data, the ICIs were used to search by product. Pembrolizumab, atezolizumab, avelumab, and nivolumab were the keywords used. Previously, durvalumab, and ipilimumab were also approved for bladder cancer treatment. However, this indication has since then been removed by the manufacturers. As such, these were not considered. Following this, the search was limited to cases of bladder cancer. A total of 2948 reactions were obtained.*
+In order to obtain the FAERS data, the ICIs were used to search by product. Pembrolizumab, atezolizumab, avelumab, and nivolumab were the keywords used. Previously, durvalumab, and ipilimumab were also approved for bladder cancer treatment. However, this indication has since then been removed by the manufacturers. As such, these were not considered. Following this, the search was limited to cases of bladder cancer. A total of 2948 reactions were obtained.
+
 
 ## Data import and cleaning
 
-*The file has been downloaded as an Excel file. The code for the analysis would involve loading the file, removing duplicates, assessing missing data, and deciding whether to remove it.* *This will be followed by filtering the data to retain only irAEs. While this step could be performed within the FAERS dashboard, this is not always a straightforward process. FAERS writes all the reactions associated with an agent in a single column, such that one column may have over 10-15 reactions. As such, this step will be performed here.*
+The file was downloaded as an Excel file. First, the column were renamed so as to make them easier to use in code. Then, products with concomitant drugs were removed, so as to focus only on cases associated with ICIs. Then, cases which also had other drugs as the suspect active ingredients were removed. 
+This was followed by retaining only the irAEs.
+A list of common irAEs was used. This list is available in the supplementary material. Any reactions which had the same age, weight, FDA received date, country of occurrence, suspected active ingredient, and reported reaction were considered duplicates and were removed.
+Following this, the reactions were coded according to the MedDRA Preferred Terms (PTs), and classified according to the System Organ Class (SOC).
+The age values were converted to numeric and the countries were re-classified as US, outside US, and not specified.
+The code for the analysis would involve loading the file, removing duplicates, assessing missing data, and deciding whether to remove it. The details are available in the processing code file.
 
-*The FAERS data initially consisted of 2948 reactions associated with ICIs in bladder cancer.*
-
-*Reactions with concomitant suspect products, combination products, and those which were not irAEs were removed. This resulted in a total of 365 cases. The details are available in the processing code file.*
-
-*The processing was done according to @fig-processing1.*
+The processing was done according to @fig-processing1.
 
 ```{r}
 #| label: fig-processing1
@@ -94,9 +111,10 @@ knitr::include_graphics(here("assets","Figure1.png"))
 
 ## Statistical analysis
 
-*The first of the analysis will consists of descriptive statistics. Continous variables will be summarized as means, whereas categorical variables will be summarized as counts and percenatges.*
-
-*The second part of the analysis will involve a disproportionality analysis. This analysis employs Proportional Reporting Ratio (PRR), Reporting Odds Ratio (ROR), and Information Component (IC). Further details will be added in Part 4..*
+Firstly, descriptive statistics were used to describe the demographic and other characteristics.
+This was followed by creating some descriptive figures.
+The PRR, ROR and IC (along with their 95% CI) were then calculated to assess the drug signal.
+A random forest model was built using age, sex, and ICI, to distinguish between serious and non-serious cases.
 
 {{< pagebreak >}}
 
@@ -104,109 +122,301 @@ knitr::include_graphics(here("assets","Figure1.png"))
 
 ## Exploratory/Descriptive analysis
 
-@tbl-summarytable *provides the patient characteristics, and summary of reactions by type of immune checkpoint inhibitor, and organ system affected.*
+@tbl-summarytable provides the patient characteristics, and summary of reactions by type of immune checkpoint inhibitor, and organ system affected.
 
-*The mean age reported was 66.94±17.65. A large percentage of the reactions occurred in males (70.2%). This may be because bladder cancer is much more common in males than in females.*
+The mean age reported was 66.94±17.65. A large percentage of the reactions occurred in males (70.2%). This may be because bladder cancer is much more common in males than in females.
 
-*Over 60% of the reactions were associated with pembrolizumab. A majority of the reactions were serious (83.7%)*
+Over 60% of the reactions were associated with pembrolizumab. A majority of the reactions were serious (83.7%).
+
+Most of the reaction were reported by healthcare professionals. Since FAERS is a US-based dashboard, many reactions were reported from the US.
 
 
 ```{r}
 #| label: tbl-summarytable
-#| tbl-cap: "Table 1: Descriptive Statistics"
+#| tbl-cap: "Descriptive Statistics"
 #| echo: FALSE
-resulttable=readRDS("../../results/tables/summarytable.rds")
-knitr::kable(resulttable)
+#| warning: FALSE
+#| message: FALSE
 
+library(flextable)
+
+# Load and modify table (all processing hidden)
+demographic_stats <- readRDS(here::here("results", "tables", "summarytable.rds"))[-c(1, 2), ]
+
+# Create and format flextable (visible in output only)
+desc_stats_table <- flextable(demographic_stats) |> 
+  # Borders
+  border_outer(part = "all") |> 
+  border_inner(part = "all") |> 
+  # Formatting
+  bold(part = "header") |> 
+  fontsize(size = 10, part = "all") |> 
+  color(color = "black", part = "all") |> 
+  # Layout
+  set_table_properties(width = 1, layout = "autofit") |>  # Full width
+  align(align = "center", part = "header") |> 
+  padding(padding = 4, part = "all")
+
+# Display table
+desc_stats_table
 ```
 
-
-```{r}
-
-```
 
 ## Basic statistical analysis
 
-*@tbl-summarytable1 shows the number of reactions by organ system and the ICI.*
+@tbl-summarytable1 shows the number of reactions by organ system and the ICI.
 
 ```{r}
 #| label: tbl-summarytable1
-#| tbl-cap: "Table 2: Reactions by organ system and drug"
+#| tbl-cap: "Reactions by Organ System and Drug"
 #| echo: FALSE
-resulttable1=readRDS("../../results/tables/summarytable1.rds")
-knitr::kable(resulttable1)
+#| warning: FALSE
+#| message: FALSE
+
+library(flextable)
+library(here)
+
+# Load and prepare data
+resulttable1 <- readRDS(here("results", "tables", "summarytable1.rds"))
+resulttable1_df <- as.data.frame(resulttable1)
+colnames(resulttable1_df) <- as.character(resulttable1_df[1,])
+resulttable1_df <- resulttable1_df[-1,]
+
+# Count number of columns
+n_cols <- ncol(resulttable1_df)
+
+# Create and format flextable
+ft <- flextable(resulttable1_df) |> 
+  # Borders
+  border_outer(part = "all") |> 
+  border_inner(part = "all") |> 
+  border_inner_h(part = "all") |> 
+  border_inner_v(part = "all") |> 
+  # Formatting
+  bold(part = "header") |> 
+  fontsize(size = 10, part = "all") |> 
+  color(color = "black", part = "all") |> 
+  # Width control
+  set_table_properties(width = 1, layout = "autofit") |> 
+  # Set relative column widths (adjust proportions as needed)
+  width(width = rep(1, n_cols))  # Equal width for all columns
+
+# Alternative for different column widths:
+# width(width = c(2, rep(1, n_cols-1)))  # First column wider
+
+# Display table
+ft
 ```
-
-
-*@fig-result shows the number of reactions by drug, along with the seriousness of the reaction.*
-
-```{r}
-#| label: fig-result
-#| fig-cap: "Bar chart of outcome of immune checkpoint inhibitors"
-#| echo: FALSE
-knitr::include_graphics(here("results","figures","figure1.png"))
-```
-
-*@fig-result1 shows the bar chart by type of organ system involved in the reaction.*
-
-```{r}
-#| label: fig-result1
-#| fig-cap: "Bar chart of types of reactions"
-#| echo: FALSE
-knitr::include_graphics(here("results","figures","figure2.png"))
-```
-
+Pembrolizumab has the highest number of reactions. The largest percentage of reactions are classified as "Other". These include reactions which do not belong to the other organ classes, such as myositis.
 
 
 ## Full analysis
 
-*The following tables show the results from the disproportionality analysis.*
+For the disproportionality analysis, we need 4 different values:
+a: Number of reports reporting both the drug and the adverse event. 
+b: Number of reports reporting the drug but not the adverse event. 
+c: Number of reports reporting the adverse event but not the drug. 
+d: Number of reports reporting neither the drug nor the adverse event. 
+
+For PRR, the formula used is:
+(a/(a+c)) / (b/(b+d))
+
+For ROR:
+(a/c)/(b/d) 
+
+For IC: 
+log2((a+b+c+d)/(a+c)*(a+b)/n)
+
+
+The following tables show the results from the disproportionality analysis.
 
 ```{r}
 #| label: tbl-atezolizumab
-#| tbl-cap: "Table 1: Atezolizumab Reactions by Organ System"
+#| tbl-cap: "Atezolizumab Reactions by Organ System"
 #| echo: FALSE
-table_atezolizumab <- readRDS("../../results/tables/table_atezolizumab.rds")
-knitr::kable(table_atezolizumab)
+#| warning: FALSE
+#| message: FALSE
+
+library(flextable)
+library(officer)
+
+# Load and prepare the table
+table_atezolizumab <- readRDS("../../results/tables/table_atezolizumab.rds") |>
+  (\(x) x[-c(1, 2), ])()  # Remove first two rows using base R
+
+# Create and format flextable
+atezolizumab_table <- flextable(table_atezolizumab) |> 
+  # Basic formatting
+  bold(part = "header") |> 
+  border(part = "all", border = officer::fp_border(color = "black", width = 1)) |> 
+  # Text alignment
+  align(align = "center", part = "header") |> 
+  align(align = "left", part = "body") |> 
+  # Cell padding
+  padding(padding = 4, part = "all") |> 
+  # Font settings
+  fontsize(size = 10, part = "all") |> 
+  # Width control
+  set_table_properties(
+    width = 1,                # 100% of available width
+    layout = "autofit"        # Automatic column adjustment
+  ) |> 
+  # Column width fine-tuning (adjust values as needed)
+  width(j = NULL, width = c(2, rep(1, ncol(table_atezolizumab)-1)))
+
+# Display the table
+atezolizumab_table
 ```
 
 
 ```{r}
 #| label: tbl-avelumab
-#| tbl-cap: "Table 2: Avelumab Reactions by Organ System"
+#| tbl-cap: "Avelumab Reactions by Organ System"
 #| echo: FALSE
-table_avelumab <- readRDS("../../results/tables/table_avelumab.rds")
-knitr::kable(table_avelumab)
+#| warning: FALSE
+#| message: FALSE
+
+library(flextable)
+library(officer)  # For fp_border()
+
+# Load and prepare data
+avelumab_data <- readRDS("../../results/tables/table_avelumab.rds")[-c(1, 2), ]
+
+# Create and format flextable
+avelumab_table <- flextable(avelumab_data) |> 
+  # Formatting
+  bold(part = "header") |> 
+  # Borders
+  border(part = "all", border = fp_border(color = "black", width = 1)) |> 
+  # Width control
+  set_table_properties(width = 1, layout = "autofit") |> 
+  # Column widths (adjust values as needed)
+  width(width = c(2, rep(1.2, ncol(avelumab_data)-1))) |> 
+  # Additional formatting
+  align(align = "center", part = "header") |> 
+  padding(padding = 4, part = "all") |> 
+  fontsize(size = 10, part = "all")
+
+# Display table 
+avelumab_table
 ```
 
 
 ```{r}
 #| label: tbl-nivolumab
-#| tbl-cap: "Table 3: Nivolumab Reactions by Organ System"
+#| tbl-cap: "Nivolumab Reactions by Organ System"
 #| echo: FALSE
-table_nivolumab <- readRDS("../../results/tables/table_nivolumab.rds")
-knitr::kable(table_nivolumab)
+#| warning: FALSE
+#| message: FALSE
+
+library(flextable)
+library(officer)  # Required for fp_border()
+
+# Load and prepare data
+nivolumab_data <- readRDS("../../results/tables/table_nivolumab.rds")[-c(1, 2), ]
+
+# Create and format flextable
+nivolumab_table <- flextable(nivolumab_data) |> 
+  # Basic formatting
+  bold(part = "header") |> 
+  # Complete border styling
+  border(part = "all", border = officer::fp_border(color = "black", width = 1)) |> 
+  # Width and layout control
+  set_table_properties(
+    width = 1,                # Use 100% of available width
+    layout = "autofit"        # Smart column adjustment
+  ) |> 
+  # Column width specification (adjust as needed)
+  width(width = c(2.5, rep(1.5, ncol(nivolumab_data)-1))) |> 
+  # Additional professional formatting
+  align(align = "center", part = "header") |> 
+  align(align = "left", part = "body") |> 
+  padding(padding = 5, part = "all") |> 
+  fontsize(size = 10, part = "all") |> 
+  font(fontname = "Arial", part = "all")
+
+# Display the table
+nivolumab_table
 ```
 
 
 ```{r}
 #| label: tbl-pembrolizumab
-#| tbl-cap: "Table 4: Pembrolizumab Reactions by Organ System"
+#| tbl-cap: "Pembrolizumab Reactions by Organ System"
 #| echo: FALSE
-table_pembrolizumab <- readRDS("../../results/tables/table_pembrolizumab.rds")
-knitr::kable(table_pembrolizumab)
+#| warning: FALSE
+#| message: FALSE
 
+library(flextable)
+library(officer)  # Required for fp_border()
+
+# Load and prepare data
+pembro_data <- readRDS("../../results/tables/table_pembrolizumab.rds")[-c(1, 2), ]
+
+# Create and format flextable
+pembro_table <- flextable(pembro_data) |> 
+  bold(part = "header") |> 
+  border(part = "all", border = fp_border(color = "black", width = 1)) |> 
+  set_table_properties(width = 1, layout = "autofit") |> 
+  width(width = c(2.2, rep(1.5, ncol(pembro_data)-1))) |> 
+  align(align = "left", part = "body", j = 1) |> 
+  align(align = "left", part = "body", j = 2:ncol(pembro_data)) |> 
+  align(align = "center", part = "header") |> 
+  padding(padding = 5, part = "all") |> 
+  fontsize(size = 10, part = "all")
+
+# Display table
+pembro_table
 ```
 
-*The PRR and ROR when all irAEs are considered is greater than 1 for pembrolizumab (PRR: 1.8 (1.52, 2.14), ROR: 2.07 (1.69, 2.55)). Similarly, the IC is greater than 0 (0.36 (0.29, 0.44)). Thus, there is a safety signal associated with pembrolizumab for all irAEs.*
+The PRR and ROR when all irAEs are considered is greater than 1 for pembrolizumab (PRR: 1.8 (1.52, 2.14), ROR: 2.07 (1.69, 2.55)). Similarly, the IC is greater than 0 (0.36 (0.29, 0.44)). Thus, there is a safety signal associated with pembrolizumab for all irAEs.
 
-*When considering individual irAEs, pembrolizumab also has a safety signal for rash (PRR: 2.11 (1.17, 3.8), ROR: 2.14 (1.18, 3.9), IC: 0.44 (0.17, 0.71).*
+When considering individual irAEs, pembrolizumab also has a safety signal for rash (PRR: 2.11 (1.17, 3.8), ROR: 2.14 (1.18, 3.9), IC: 0.44 (0.17, 0.71).
 
-*Atezolizumab has a safety signal for hyperthyroidism (PRR: 3.51 (1.07, 11.45), ROR: 3.53 (1.07, 11.61), IC:	1.1 (0.33, 1.87). There also may be a signal for nephritis (PRR: 3.65 (0.98, 13.56), ROR: 3.68 (0.98, 13.73), IC:	1.12 (0.29, 1.96), though the 95% CI for PRR and ROR is not greater than 1 (though very close to 1).*
+Atezolizumab has a safety signal for hyperthyroidism (PRR: 3.51 (1.07, 11.45), ROR: 3.53 (1.07, 11.61), IC:	1.1 (0.33, 1.87). There also may be a signal for nephritis (PRR: 3.65 (0.98, 13.56), ROR: 3.68 (0.98, 13.73), IC:	1.12 (0.29, 1.96), though the 95% CI for PRR and ROR is not greater than 1 (though very close to 1).
 
-*Similarly, avelumab may has a safety signal for hypothyroidism (PRR: 3.05 (0.98, 9.51), ROR:	3.08 (0.97, 9.75), IC:	1.32 (0.12, 2.52)).*
+Similarly, avelumab may has a safety signal for hypothyroidism (PRR: 3.05 (0.98, 9.51), ROR:	3.08 (0.97, 9.75), IC:	1.32 (0.12, 2.52)).
 
-*No significant safety signals were found for nivolumab.*
+No significant safety signals were found for nivolumab.
+
+A random forest model was built to distinguish between serious and non-serious outcomes using age, sex, and ICI.
+Inverse weighting was used to deal with the class imbalance.
+The model was built using cross-validation.
+
+```{r}
+#| label: tbl-randomforest
+#| tbl-cap: "Random Forest Evaluation Metrics"  # Removed "Table X" to prevent duplication
+#| echo: FALSE
+#| warning: FALSE
+#| message: FALSE
+
+library(flextable)
+library(officer)
+
+# Load and prepare data
+rf_metrics <- readRDS("../../results/tables/randomforesttable.rds")
+
+# Create professional flextable
+flextable(rf_metrics) |> 
+  # Basic formatting
+  bold(part = "header") |> 
+  border(part = "all", border = fp_border(color = "black", width = 1)) |> 
+  # Number formatting
+  colformat_double(digits = 3) |>  # Adjust decimal places as needed
+  # Alignment
+  align(align = "center", part = "header") |> 
+  align(align = "right", part = "body", j = which(sapply(rf_metrics, is.numeric))) |> 
+  # Layout
+  set_table_properties(width = 1, layout = "autofit") |> 
+  width(width = c(1.8, rep(1.2, ncol(rf_metrics)-1))) |>  # Adjust column widths
+  # Visual enhancements
+  bg(part = "header", bg = "#f2f2f2") |>  # Light gray header
+  fontsize(size = 10, part = "all") |> 
+  padding(padding = 4, part = "all")
+```
+
+We see that the accuracy is quite low (~25%). The model is not able to distinguish well between serious and non-serious cases, classifying most non-serious cases as serious. This issue arises due to the class imbalance in the data used to train the model (305 serious cases out of 365).
+Advanced machine learning methods may be explored to overcome this problem. Some additional methods will be considered in part 5.
 
 {{< pagebreak >}}
 
@@ -214,20 +424,29 @@ knitr::kable(table_pembrolizumab)
 
 ## Summary and Interpretation
 
-*Summarize what you did, what you found and what it means.*
+In this study, the safety signals for the most commonly reported irAEs in clinical trials were assessed.
+Safety signals for pembrolizumab included all irAEs as a whole, as well as a signal for rash.
+Hyperthyroidism was a concern with atezolizumab, while nephritis may also be an issue.
+Hypothyroidism could be of concern with avleumab use.
+No specific signals were found with nivolumab.
 
 ## Strengths and Limitations
 
-*Discuss what you perceive as strengths and limitations of your analysis.*
+This study used data from the FAERS dashboard, and thus provides real-world evidence regarding the association of irAEs with ICI use in bladder cancer.
+To my knowledge, this is the first study using FAERS data to assess this association.
+However, the findings of this study must be considered in context of certain limitations.
+Firstly, FAERS data has several limitations. The dashboard cannot provide causal information. 
+This is a voluntary system. In the US, only drug manufacturers are mandated to reported adverse events. This means that all events are not reported.
+Additionally, the reports may have duplicates, or may be incomplete. Efforts have been made in this study to remove the duplicates, but data completeness cannot be ensured.
+Pembrolizumab was approved in 2014, while avelumab, nivolumab, and atezolizumab were initially approved in 2017, with additonal approvals in later years for other stages of bladder cancer.
+As such, the larger number of reports associated with pembrolizumab may simple be due to the larger reporting time.
+A future analysis with additional data may find different results to the one obtained using data until December 2024.
 
 ## Conclusions
 
-*What are the main take-home messages?*
+Immune checkpoint inhibitor therapy are associated with immune-related adverse events (particularly rash, hypothyroidism, hyperthyroidism, and nephritis) in bladder cancer. Currently, no established guidelines exist to manage these adverse events.
+There is a need to develop centralized guidelines and protocols for managing irAEs associated with ICI therapy.
 
-*Include citations in your Rmd file using bibtex, the list of references will automatically be placed at the end*
-
-Note that this cited reference will show up at the end of the document, the reference formatting is determined by the CSL file specified in the YAML header. Many more style files for almost any journal [are available](https://www.zotero.org/styles). You also specify the location of your bibtex reference file in the YAML. You can call your reference file anything you like.
-
-{{< pagebreak >}}
+*More details will be added in part 5 to the discussion section.*
 
 # References

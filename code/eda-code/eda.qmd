@@ -106,17 +106,67 @@ transposed_table <- combined_summary %>%
 # Rename columns for clarity
 colnames(transposed_table)[1] <- "Attribute"
 
-# Convert to huxtable object
-huxtable_table <- as_hux(transposed_table)
+# Get the current order of attributes
+current_order <- transposed_table$Attribute
 
-# Format the table with huxtable (style, borders, etc.)
+# Create a new order with subheadings inserted
+new_order <- c()
+insert_subheading <- function(order_vector, before, subheading) {
+  pos <- which(order_vector == before)
+  if (length(pos) > 0) {
+    c(order_vector[1:(pos-1)], subheading, order_vector[pos:length(order_vector)])
+  } else {
+    order_vector
+  }
+}
+
+# Insert subheadings before specific attributes
+new_order <- insert_subheading(current_order, "Male", "Sex")
+new_order <- insert_subheading(new_order, "Serious", "Severity of reaction")
+new_order <- insert_subheading(new_order, "Died", "Outcomes")
+new_order <- insert_subheading(new_order, "Healthcare Professional", "Reporter type")
+new_order <- insert_subheading(new_order, "US", "Country")
+
+# Create a new table with subheadings
+subheading_rows <- data.frame(
+  Attribute = setdiff(new_order, current_order),
+  stringsAsFactors = FALSE
+)
+subheading_rows[colnames(transposed_table)[-1]] <- ""
+
+final_table <- bind_rows(
+  lapply(new_order, function(x) {
+    if (x %in% subheading_rows$Attribute) {
+      subheading_rows[subheading_rows$Attribute == x, ]
+    } else {
+      transposed_table[transposed_table$Attribute == x, ]
+    }
+  })
+)
+
+# Create the final table with title and clean formatting
+huxtable_table <- as_hux(final_table, add_colnames = TRUE) %>% 
+  # Add a title row
+  insert_row(c("Adverse Event Report Summary", rep("", ncol(final_table)-1)), 
+             after = 0) %>% 
+  # Merge title cells
+  merge_cells(1, 1:ncol(final_table)) %>%
+  # Basic formatting
+  set_all_borders(1) %>%               # All cell borders
+  set_align(everywhere, everywhere, "center") %>%  # Center alignment
+  set_valign(everywhere, everywhere, "middle") %>% # Vertical center
+  set_font_size(10) %>%               # Base font size
+  set_font_size(1, everywhere, 12) %>% # Larger font for title
+  set_bold(1, everywhere, TRUE) %>%   # Bold title only
+  # Ensure no other text is bolded
+  set_bold(2:nrow(final_table)+1, everywhere, FALSE)
+
+# Format the title row
 huxtable_table <- huxtable_table %>%
-  set_all_borders(1) %>%
-  set_font_size(12) %>%
-  set_align("center") %>%
-  set_width(1.5)
+  set_background_color(1, everywhere, "gray95") %>%
+  set_top_border(1, everywhere, 2) %>%
+  set_bottom_border(1, everywhere, 2)
 
-# Print the huxtable object, this will render correctly in Word
 huxtable_table
 
 ```
@@ -158,13 +208,27 @@ organ_system_pivoted <- organ_system_summary %>%
 # Create a huxtable table
 ht <- huxtable::as_hux(organ_system_pivoted)
 
-# Add styling to the table
-ht <- ht %>%
-    set_bold(1, 1:ncol(ht)) %>%  # Bold the first row (header)
-    set_caption("Immune Checkpoint Inhibitors by Organ System and Reaction") %>%
-    set_width(1)                  # Set column width to make the table more compact
+# FINAL WORKING SOLUTION
+ht <- as_hux(organ_system_pivoted, add_colnames = TRUE) %>%
+  # Basic formatting
+  set_bold(1, everywhere, TRUE) %>%      # Bold headers
+  set_align(everywhere, everywhere, "center") %>%
+  set_all_borders(brdr(1, "solid")) %>%  # Solid borders
+  set_all_padding(4) %>%
+  set_font_size(10) %>%
+  set_width(0.9)
 
-# Display the table
+# Add title as a caption (works in exports)
+caption(ht) <- "Immune Checkpoint Inhibitors by Organ System and Reaction"
+
+# Bold specific drug names
+drug_cols <- which(colnames(organ_system_pivoted) %in% 
+                  c("atezolizumab", "pembrolizumab", "nivolumab", "avelumab"))
+if (length(drug_cols) > 0) {
+  ht <- ht %>% set_bold(1, drug_cols, TRUE)
+}
+
+# Display
 ht
 
 
