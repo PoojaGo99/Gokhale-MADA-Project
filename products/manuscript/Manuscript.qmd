@@ -55,6 +55,7 @@ According to the National Comprehensive Cancer Network (NCCN) guidelines, immuno
 
 ICIs are associated with various adverse effects, particularly with immune-related adverse events (irAEs) such as pneumonitis, hepatitis, colitis, hypothyroidism, dermatitis, and others [@Yin2023].This study aims to analyze real-world adverse event data from the FDA Adverse Event Reporting System associated with ICI therapy in bladder cancer.
 
+{{< pagebreak >}}
 
 ## Description of data and data source
 
@@ -74,6 +75,8 @@ The study aims to analyze whether irAEs associated with ICIs generate a signal o
 The FAERS dashboard was searched by product to obtain cases related to the use of ICIs in bladder cancer. This data was then filtered to retain only irAE cases. Other adverse events and duplicate cases were removed. Following this, the demographic and drug characteristics were summarized.
 
 To assess whether an ICI has a safety signal associated with a particular irAE, three metrics were used:
+
+
 1. Proportional reporting ratio (PRR):
 This approach compares the proportion of reports for a specific adverse event with a drug of interest to the proportion of the same event reported for all other drugs.
 
@@ -84,6 +87,8 @@ This metric is obtained by comparing the ratio of a drug's adverse event reports
 For this metric, the observed vs. expected reporting of a drug-adverse event combination is compared.
 
 A random forest model was fit to distinguish between serious and non-serious cases on the basis of age, sex, and ICI.
+
+{{< pagebreak >}}
 
 ## Data aquisition
 
@@ -107,14 +112,17 @@ The processing was done according to @fig-processing1.
 #| echo: FALSE
 knitr::include_graphics(here("assets","Figure1.png"))
 ```
-
+{{< pagebreak >}}
 
 ## Statistical analysis
 
 Firstly, descriptive statistics were used to describe the demographic and other characteristics.
 This was followed by creating some descriptive figures.
+Two logistic regression models were fit to assess the association by severity with sex and age.
 The PRR, ROR and IC (along with their 95% CI) were then calculated to assess the drug signal.
-A random forest model was built using age, sex, and ICI, to distinguish between serious and non-serious cases.
+Three different machine learning models were used to distinguish severity on the bases of sex, age, and type of ICI.
+Due to missing values, the patient age values were imputed.
+First, the data was split into training and testing data (70/30 split). A 5-fold cross-validation was used.
 
 {{< pagebreak >}}
 
@@ -161,8 +169,7 @@ desc_stats_table <- flextable(demographic_stats) |>
 desc_stats_table
 ```
 
-
-## Basic statistical analysis
+{{< pagebreak >}}
 
 @tbl-summarytable1 shows the number of reactions by organ system and the ICI.
 
@@ -207,8 +214,48 @@ ft <- flextable(resulttable1_df) |>
 # Display table
 ft
 ```
+
+
 Pembrolizumab has the highest number of reactions. The largest percentage of reactions are classified as "Other". These include reactions which do not belong to the other organ classes, such as myositis.
 
+{{< pagebreak >}}
+
+## Basic statistical analysis
+
+@fig-result shows the number of reactions by drug, along with the seriousness of the reaction.
+
+```{r}
+#| label: fig-result
+#| fig-cap: "Association of severity with sex"
+#| echo: FALSE
+library(here)
+library(knitr)
+knitr::include_graphics(here("results","figures","severity_sex.png"))
+```
+
+The probability of serious outcomes is highest for sex not specified, followed by males, then females.
+There are more cases for males than females, so it is expected that more males report severe cases.
+However, it is surprising that even with a low percentage of non-specified sex reports, the severity can be high.
+This may indicate underlying issues with the data reporting.
+However, sex is not a significant predictor of severity.
+
+{{< pagebreak >}}
+
+@fig-result2 shows the association between severity and age.
+
+```{r}
+#| label: fig-result2
+#| fig-cap: "Association of severity with age"
+#| echo: FALSE
+library(here)
+library(knitr)
+knitr::include_graphics(here("results","figures","severity_age.png"))
+```
+
+The predicted severity decreases with age.
+However, this relationship is also not signficant.
+
+{{< pagebreak >}}
 
 ## Full analysis
 
@@ -268,6 +315,7 @@ atezolizumab_table <- flextable(table_atezolizumab) |>
 atezolizumab_table
 ```
 
+{{< pagebreak >}}
 
 ```{r}
 #| label: tbl-avelumab
@@ -301,6 +349,7 @@ avelumab_table <- flextable(avelumab_data) |>
 avelumab_table
 ```
 
+{{< pagebreak >}}
 
 ```{r}
 #| label: tbl-nivolumab
@@ -339,6 +388,7 @@ nivolumab_table <- flextable(nivolumab_data) |>
 nivolumab_table
 ```
 
+{{< pagebreak >}}
 
 ```{r}
 #| label: tbl-pembrolizumab
@@ -379,9 +429,11 @@ Similarly, avelumab may has a safety signal for hypothyroidism (PRR: 3.05 (0.98,
 
 No significant safety signals were found for nivolumab.
 
-A random forest model was built to distinguish between serious and non-serious outcomes using age, sex, and ICI.
-Inverse weighting was used to deal with the class imbalance.
-The model was built using cross-validation.
+{{< pagebreak >}}
+
+## Machine Learning Analysis
+
+@tbl--randomforest shows the results of the three machine learning models (logistic regression, decision tree, random forest).
 
 ```{r}
 #| label: tbl-randomforest
@@ -394,29 +446,49 @@ library(flextable)
 library(officer)
 
 # Load and prepare data
-rf_metrics <- readRDS("../../results/tables/randomforesttable.rds")
+rf_metrics <- readRDS("../../results/tables/model_table.rds")
 
-# Create professional flextable
-flextable(rf_metrics) |> 
-  # Basic formatting
+rf_metrics_cleaned <- rf_metrics[-1, ]  # Removes the second row
+
+flextable(rf_metrics_cleaned) |> 
   bold(part = "header") |> 
   border(part = "all", border = fp_border(color = "black", width = 1)) |> 
-  # Number formatting
-  colformat_double(digits = 3) |>  # Adjust decimal places as needed
-  # Alignment
+  colformat_double(digits = 3) |>  
   align(align = "center", part = "header") |> 
-  align(align = "right", part = "body", j = which(sapply(rf_metrics, is.numeric))) |> 
-  # Layout
+  align(align = "right", part = "body", j = which(sapply(rf_metrics_cleaned, is.numeric))) |> 
   set_table_properties(width = 1, layout = "autofit") |> 
-  width(width = c(1.8, rep(1.2, ncol(rf_metrics)-1))) |>  # Adjust column widths
-  # Visual enhancements
-  bg(part = "header", bg = "#f2f2f2") |>  # Light gray header
+  width(width = c(1.8, rep(1.2, ncol(rf_metrics_cleaned)-1))) |>  
+  bg(part = "header", bg = "#f2f2f2") |>  
   fontsize(size = 10, part = "all") |> 
   padding(padding = 4, part = "all")
+
 ```
 
-We see that the accuracy is quite low (~25%). The model is not able to distinguish well between serious and non-serious cases, classifying most non-serious cases as serious. This issue arises due to the class imbalance in the data used to train the model (305 serious cases out of 365).
-Advanced machine learning methods may be explored to overcome this problem. Some additional methods will be considered in part 5.
+The Random Forest model has an AUC of 0.806. Thus, this models is able to predict between serious and non-serious cases ~81% of the time.
+The logistic regression model is next, able to distinguish ~60% of the time.
+The decision tree model performs poorly, possibly due to fitting issues.
+All the models have the same accuracy. Additionally, sensitivity is 0 and specificity is high, meaning all the models always predict 'serious'.
+Such problems arise due to class imbalances, and may require advanced methods to deal with.
+The random forest model does not perform as well on the test data (AUC=0.56), and is able to distinguish the severity only 56% of the time.
+
+@fig-result3 shows the feature importance.
+
+```{r}
+#| label: fig-result3
+#| fig-cap: "Feature importance"
+#| echo: FALSE
+library(here)
+library(knitr)
+knitr::include_graphics(here("results","figures","rf_feature_importance.png"))
+```
+
+
+The most important feature is the patient age.
+However, this variable has imputations and thus may affect the dependability of the model.
+Overall, the model performs decently on train data, but not on test data.
+More data and variables can help improve the fit.
+With this data, this model is not useful in distinguishing between serious and non-serious cases.
+The ROC curves for the different models are available in the Supplementary Material.
 
 {{< pagebreak >}}
 

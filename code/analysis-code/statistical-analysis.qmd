@@ -1021,184 +1021,310 @@ saveRDS(table_nivolumab, file = table_nivolumab_path)
 saveRDS(table_pembrolizumab, file = table_pembrolizumab_path)
 ```
 
-Now, we use machine learning methods (random forest) to assess severity of reaction based on age, sex and drug. 
+First, let's fit a logistic regression model to see which factors affect the severity of the reactions:
 
+Let's look at the relationship between severity and sex. We need to recode the sex variable for this:
 ```{r}
-library(tidyverse)
-library(randomForest) # For Random Forest
-library(xgboost)     # For XGBoost
-library(caret)       # For preprocessing
-
-glimpse(mydata)
-
-# Check factor levels and missingness
-summary(mydata[c("suspect_product_active_ingredients", "sex", "patient_age", "serious")])
-
-# Class distribution
-table(mydata$serious)  # Check for imbalance (e.g., 70% non-serious vs. 30% serious)
+# Create a new binary column: 1 = Serious, 0 = Non-Serious
+mydata$serious_bin <- ifelse(mydata$serious == "Serious", 1, 0)
 ```
 
-We see missing data and imbalance of outcomes. First, we impute age for the missing data.
-```{r}
-library(tidyverse)
-library(randomForest)
-
-df_clean <- mydata %>%
-  mutate(
-    # Convert to factors (critical for ML)
-    suspect_product_active_ingredients = factor(suspect_product_active_ingredients),
-    sex = factor(sex),
-    serious = factor(serious),
-    
-    # Impute missing age with median (stratified by sex to preserve trends)
-    patient_age = ifelse(
-      is.na(patient_age),
-      median(patient_age, na.rm = TRUE),
-      patient_age
-    )
-  )
-```
-
-Now, we split the data:
-```{r}
-library(caret)
-set.seed(123)
-
-# Stratified split (70% train, 30% test)
-train_index <- createDataPartition(
-  df_clean$serious, 
-  p = 0.7, 
-  list = FALSE,
-  times = 1
-)
-
-train_data <- df_clean[train_index, ]
-test_data <- df_clean[-train_index, ]
-
-# Verify class balance in both sets
-table(train_data$serious)  # Should be ~70% of original counts
-table(test_data$serious)   # Should be ~30%
-```
-We can see the split has happened correctly, and the imbalance is there. Let's use inverse weighting to deal with the imbalance, and then fit a random forest model.
+Now, we fit the model and look at the plot.
 
 ```{r}
-library(randomForest)
+library(ggplot2)
 
-# 1. Verify factor levels (critical!)
-levels(train_data$serious)  # Must return: [1] "Non-Serious" "Serious"
+logit_model_sex <- glm(serious_bin ~ sex, data = mydata, family = binomial)
+summary(logit_model_sex)
+mydata$predicted_prob <- predict(logit_model_sex, type = "response")
 
-# 2. Calculate class weights (EXACT names and case)
-class_weights <- c(
-  "Non-Serious" = sum(train_data$serious == "Serious") / nrow(train_data),  # Majority class weight
-  "Serious" = sum(train_data$serious == "Non-Serious") / nrow(train_data)    # Minority class weight
-)
-```
+severity_sex = ggplot(mydata, aes(x = sex, y = predicted_prob)) +
+  geom_jitter(width = 0.2, alpha = 0.3, color = "purple") +
+  labs(
+    title = "Predicted Probability of Serious Event by Sex",
+    x = "Sex",
+    y = "Predicted Probability"
+  ) +
+  theme_minimal()
 
-Now, let's build a random forest model using cross-validation.
+print(severity_sex)
 
-```{r}
-library(randomForest)
-library(caret)
-library(pROC)
-
-# Ensure `serious` is a factor
-train_data$serious <- as.factor(train_data$serious)
-
-# Define class weights based on inverse frequency
-class_counts <- table(train_data$serious)
-class_weights <- 1 / class_counts  # Inverse class frequency weighting
-class_weights <- setNames(as.numeric(class_weights), names(class_counts))  # Ensure correct names
-
-# Perform 5-fold cross-validation
-set.seed(123)
-k_folds <- 5
-folds <- createFolds(train_data$serious, k = k_folds, list = TRUE)
-
-cv_results <- lapply(folds, function(fold_idx) {
-  train_fold <- train_data[-fold_idx, ]
-  test_fold  <- train_data[fold_idx, ]
-  
-  # Train Random Forest model
-  rf_model <- randomForest(
-    serious ~ suspect_product_active_ingredients + sex + patient_age,
-    data = train_fold,
-    classwt = class_weights,  # Correct class weights
-    strata = train_fold$serious,
-    sampsize = rep(min(table(train_fold$serious)), 2),
-    ntree = 500,
-    importance = TRUE,
-    na.action = na.roughfix
-  )
-
-  # Make predictions
-  preds <- predict(rf_model, newdata = test_fold, type = "response")
-  probs <- predict(rf_model, newdata = test_fold, type = "prob")[, 2]  # Get probabilities for ROC
-
-  # Compute confusion matrix
-  cm <- confusionMatrix(preds, test_fold$serious)
-
-  # Compute evaluation metrics
-  accuracy  <- cm$overall["Accuracy"]
-  precision <- cm$byClass["Precision"]
-  recall    <- cm$byClass["Recall"]
-  f1_score  <- 2 * (precision * recall) / (precision + recall)
-
-  # Compute AUC-ROC
-  roc_curve <- roc(as.numeric(test_fold$serious), probs)
-  auc_value <- auc(roc_curve)
-
-  return(c(accuracy, precision, recall, f1_score, auc_value))
-})
-
-library(huxtable)
-
-# Assuming cv_results_df is already created as shown in your code
-cv_results_df <- as.data.frame(do.call(rbind, cv_results))
-colnames(cv_results_df) <- c("Accuracy", "Precision", "Recall", "F1-Score", "AUC-ROC")
-
-# Compute average metrics and create a summary table
-avg_metrics <- colMeans(cv_results_df)
-metrics_table <- data.frame(
-  Metric = names(avg_metrics),
-  Value = round(avg_metrics, 4)  # Round to 4 decimal places
-)
-
-library(huxtable)
-
-# Create the metrics data frame
-metrics_table <- data.frame(
-  Metric = c("Accuracy", "Precision", "Recall", "F1-Score", "AUC-ROC"),
-  Value = round(avg_metrics, 4)  # Using your computed avg_metrics
-)
-
-clean_table <- as_hux(metrics_table) %>%
-  # Formatting
-  set_bold(1, everywhere) %>%           # Bold header row only
-  set_align(everywhere, everywhere, "center") %>%  # Center all cells
-  set_width(0.6) %>%                    # Set table width
-  set_font_size(10) %>%                 # Font size
-  # Borders (the key fix)
-  set_all_borders(1) %>%                # All cell borders (1 = thin line)
-  set_outer_borders(2)                  # Thicker outer border (2 = thicker)
-
-# Print the table
-clean_table
-
-```
-```{r}
-# Define paths for saving each table
-clean_table_path <- here("results", "tables", "randomforesttable.rds")
+# Define paths
+severity_sex_path <- here("results", "figures", "severity_sex.png")
+logit_model_sex_path = here("results", "tables", "logit_model_sex.rds")
 
 # Save all four tables to their respective paths
-saveRDS(clean_table, file = clean_table_path)
+ggsave(filename = severity_sex_path, plot=severity_sex) 
+saveRDS(logit_model_sex, file = logit_model_sex_path)
+
+```
+
+We see that the probability of serious outcomes is highest for sex not specified, followed by males, then females.
+There are more cases for males than females, so it is expected that more males report severe cases.
+However, it is surprising that even with a low percentage of non-specified sex reports, the severity can be high.
+This may indicate underlying issues with the data reporting.
+We do see that sex is not a significant predictor of severity.
+
+Let's look at the association of age with severity.
+We know that age has a few NA's. Since, this is continuous data, it is better to remove the NA's.
+
+```{r}
+mydata_clean <- mydata[!is.na(mydata$patient_age), ]
+```
+
+```{r}
+logit_model_age <- glm(serious_bin ~ patient_age, data = mydata_clean, family = binomial)
+summary(logit_model_age)
+mydata_clean$predicted_prob <- predict(logit_model_age, type = "response")
+
+severity_age = ggplot(mydata_clean, aes(x = patient_age, y = predicted_prob)) +
+  geom_point(alpha = 0.3, color = "steelblue") +
+  labs(
+    title = "Predicted Probability of Serious Outcome by Age",
+    x = "Patient Age",
+    y = "Predicted Probability"
+  ) +
+  theme_minimal()
+
+print(severity_age)
+
+# Define paths
+severity_age_path <- here("results", "figures", "severity_age.png")
+logit_model_age_path = here("results", "tables", "logit_model_age.rds")
+
+# Save all four tables to their respective paths
+ggsave(filename = severity_age_path, plot=severity_age) 
+saveRDS(logit_model_age, file = logit_model_age_path)
+
+```
+We see that predicted severity decreases with age.
+However, this relationship is also not signficant.
+
+
+Now, we use machine learning methods (random forest) to assess severity of reaction based on age, sex and drug.
+We know that there are NA's in the age.
+Let's impute the data (since removing the variables will create a very small dataset).
+There were too many NA's for KNN imputation to be used.
+
+```{r}
+# Calculate the mean of the 'patient_age' column, excluding missing values
+mean_age <- mean(mydata$patient_age, na.rm = TRUE)
+
+# Replace missing values (NA) in 'patient_age' with the calculated mean
+mydata$patient_age_imputed <- ifelse(is.na(mydata$patient_age), mean_age, mydata$patient_age)
+
 ```
 
 
-We can see that the accuracy is quite low (25.3%) - thus, the model is only able to make correct predictions 25% of the time. 
-There are many false positives (Precision: 16.61%).
-The model is able to capture 87.78% of positives, but at the cost of correctly predicting negatives.
-The AUC-ROC is low, thus the model is not able to distinguish between positives and negatives effectively.
+First, let's split the data:
 
-If we had a larger dataset, or more variables, we might be able to build a better model.
-I will explore more modifications and complex methods in part 5.
+```{r}
+set.seed(123)
+library(caret)
+
+train_index <- createDataPartition(mydata$serious_bin, p = 0.7, list = FALSE)
+train_data <- mydata[train_index, ]
+test_data  <- mydata[-train_index, ]
+
+```
+
+First, let's ensure that the serious variable is a factor:
+```{r}
+# Ensure 'serious_bin' and 'sex' is a factor
+train_data$serious_bin <- as.factor(train_data$serious_bin)
+test_data$serious_bin <- as.factor(test_data$serious_bin)
+
+train_data$sex <- factor(train_data$sex)
+test_data$sex <- factor(test_data$sex)
+```
+
+
+First, let's use a basic logistic regression model:
+```{r}
+# Fit logistic regression model with cross-validation
+logit_model <- train(serious_bin ~ patient_age_imputed + sex + suspect_product_active_ingredients, 
+                     data = train_data, 
+                     method = "glm", 
+                     family = "binomial", 
+                     trControl = trainControl(method = "cv", number = 5))
+
+```
+
+Now, let's fit a decision tree (for classification):
+```{r}
+# Decision Tree (CART) model with cross-validation
+dt_model <- train(serious_bin ~ patient_age_imputed + sex + suspect_product_active_ingredients, 
+                  data = train_data, 
+                  method = "rpart", 
+                  trControl = trainControl(method = "cv", number = 5))
+
+```
+
+Now, let's use a random forest:
+```{r}
+# Random Forest model with cross-validation
+rf_model <- train(serious_bin ~ patient_age_imputed + sex + suspect_product_active_ingredients, 
+                  data = train_data, 
+                  method = "rf", 
+                  trControl = trainControl(method = "cv", number = 5))
+
+```
+
+Now, let's evaluate all the models:
+
+```{r}
+# Accuracy and AUC for Logistic Regression
+logit_model$results
+
+# Accuracy and AUC for Decision Tree
+dt_model$results
+
+# Accuracy and AUC for Random Forest
+rf_model$results
+
+```
+
+```{r}
+library(pROC)
+library(ggplot2)
+library(here)
+
+# Logistic Regression ROC
+logit_roc <- roc(train_data$serious_bin, predict(logit_model, type = "prob")[,2])
+logit_roc_plot <- ggroc(logit_roc) + ggtitle("Logistic Regression ROC Curve")
+cat("Logistic Regression AUC:", auc(logit_roc), "\n")
+
+# Decision Tree ROC
+dt_roc <- roc(train_data$serious_bin, predict(dt_model, type = "prob")[,2])
+dt_roc_plot <- ggroc(dt_roc) + ggtitle("Decision Tree ROC Curve")
+cat("Decision Tree AUC:", auc(dt_roc), "\n")
+
+# Random Forest ROC
+rf_roc <- roc(train_data$serious_bin, predict(rf_model, type = "prob")[,2])
+rf_roc_plot <- ggroc(rf_roc) + ggtitle("Random Forest ROC Curve")
+cat("Random Forest AUC:", auc(rf_roc), "\n")
+
+# Define file paths
+logit_roc_path <- here("results", "figures", "logit_roc.png")
+dt_roc_path <- here("results", "figures", "dt_roc.png")
+rf_roc_path <- here("results", "figures", "rf_roc.png")
+
+# Save plots
+ggsave(filename = logit_roc_path, plot = logit_roc_plot, width = 6, height = 4)
+ggsave(filename = dt_roc_path, plot = dt_roc_plot, width = 6, height = 4)
+ggsave(filename = rf_roc_path, plot = rf_roc_plot, width = 6, height = 4)
+
+```
+
+```{r}
+cat("\nModel Comparison based on AUC:\n")
+cat("Logistic Regression AUC:", auc(logit_roc), "\n")
+cat("Decision Tree AUC:", auc(dt_roc), "\n")
+cat("Random Forest AUC:", auc(rf_roc), "\n")
+```
+
+We see that the Random Forest model has an AUC of 0.806. Thus, this models is able to predict between serious and non-serious cases ~81% of the time.
+The logistic regression model is next, able to distinguish ~60% of the time.
+The decision tree model performs poorly, possibly due to fitting issues.
+
+Let's fit the random forest model to the test data:
+```{r}
+# Make predictions on the test data (probabilities for AUC)
+rf_pred_prob <- predict(rf_model, newdata = test_data, type = "prob")
+
+# Make predictions on the test data (class labels for evaluation)
+rf_pred_class <- predict(rf_model, newdata = test_data, type = "raw")
+
+# ROC curve for Random Forest
+rf_roc <- roc(test_data$serious_bin, rf_pred_prob[, 2])  # Using the probability of the 'Serious' class
+plot(rf_roc, main = "Random Forest ROC Curve")
+cat("Random Forest AUC on Test Data:", auc(rf_roc), "\n")
+
+# Extract the random forest model from the train object
+rf_final_model <- rf_model$finalModel
+
+library(randomForest)
+# Display feature importance
+importance(rf_final_model)
+
+# Plot feature importance
+varImpPlot(rf_final_model)
+
+```
+
+Save the file:
+```{r}
+# Load library
+library(randomForest)
+
+# Define file path
+importance_plot_path <- here::here("results", "figures", "rf_feature_importance.png")
+
+# Save the plot
+png(filename = importance_plot_path, width = 800, height = 600)
+varImpPlot(rf_final_model)
+dev.off()
+
+```
+
+
+We see that the model does not perform as well on the test data (AUC=0.56), and is able to distinguish the severity only 56% of the time.
+The most important feature is the patient age.
+However, this variable has imputations and thus may affect the dependability of the model.
+Overall, the model performs decently on train data, but not on test data.
+More data and variables can help improve the fit.
+With this data, this model is not useful in distinguishing between serious and non-serious cases.
+
+Let's create a summary table for all the models:
+```{r}
+library(pROC)
+library(caret)
+
+# Logistic Regression Model
+logit_preds <- predict(logit_model, newdata = train_data)
+logit_acc <- confusionMatrix(logit_preds, train_data$serious_bin)$overall['Accuracy']
+logit_auc <- roc(train_data$serious_bin, predict(logit_model, newdata = train_data, type = "prob")[,2])$auc
+logit_sens <- confusionMatrix(logit_preds, train_data$serious_bin)$byClass['Sensitivity']
+logit_spec <- confusionMatrix(logit_preds, train_data$serious_bin)$byClass['Specificity']
+
+# Decision Tree Model (now using dt_model)
+dt_preds <- predict(dt_model, newdata = train_data)
+dt_acc <- confusionMatrix(dt_preds, train_data$serious_bin)$overall['Accuracy']
+dt_auc <- roc(train_data$serious_bin, predict(dt_model, newdata = train_data, type = "prob")[,2])$auc
+dt_sens <- confusionMatrix(dt_preds, train_data$serious_bin)$byClass['Sensitivity']
+dt_spec <- confusionMatrix(dt_preds, train_data$serious_bin)$byClass['Specificity']
+
+# Random Forest Model
+rf_preds <- predict(rf_model, newdata = train_data)
+rf_acc <- confusionMatrix(rf_preds, train_data$serious_bin)$overall['Accuracy']
+rf_auc <- roc(train_data$serious_bin, predict(rf_model, newdata = train_data, type = "prob")[,2])$auc
+rf_sens <- confusionMatrix(rf_preds, train_data$serious_bin)$byClass['Sensitivity']
+rf_spec <- confusionMatrix(rf_preds, train_data$serious_bin)$byClass['Specificity']
+
+# Create summary data frame with results
+model_summary <- data.frame(
+  Model = c("Logistic Regression", "Decision Tree", "Random Forest"),
+  Accuracy = c(logit_acc, dt_acc, rf_acc),
+  AUC = c(logit_auc, dt_auc, rf_auc),
+  Sensitivity = c(logit_sens, dt_sens, rf_sens),
+  Specificity = c(logit_spec, dt_spec, rf_spec)
+)
+
+# Convert to huxtable
+model_table <- as_hux(model_summary)
+
+# Format the table
+model_table <- set_bold(model_table, 1, 1:ncol(model_table))  # Make the entire header row bold
+model_table <- set_align(model_table, 1, 1:ncol(model_table), "center")  # Center-align the entire header row
+model_table <- set_all_borders(model_table, 1)
+
+# Print the table
+model_table
+
+# Save the table
+model_table_path = here("results", "tables", "model_table.rds")
+saveRDS(model_table, file = model_table_path)
+```
+We see that sensitivity is 0 and specificity is high, meaning all the models always predict 'serious'.
+Such problems arise due to class imbalances, and may require advanced methods to deal with.
 

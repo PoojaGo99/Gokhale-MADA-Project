@@ -55,6 +55,33 @@ knitr::include_graphics(here("results","figures","figure1.png"))
 knitr::include_graphics(here("results","figures","figure2.png"))
 ```
 
+@fig-result2 shows the bar chart by type of organ system involved in the reaction.
+
+```{r}
+#| label: fig-result2
+#| fig-cap: "ROC Curve - Logistic Regression"
+#| echo: FALSE
+knitr::include_graphics(here("results","figures","logit_roc.png"))
+```
+
+@fig-result3 shows the bar chart by type of organ system involved in the reaction.
+
+```{r}
+#| label: fig-result3
+#| fig-cap: "ROC Curve - Decision Tree"
+#| echo: FALSE
+knitr::include_graphics(here("results","figures","dt_roc.png"))
+```
+
+@fig-result4 shows the bar chart by type of organ system involved in the reaction.
+
+```{r}
+#| label: fig-result4
+#| fig-cap: "ROC Curve - Random forest"
+#| echo: FALSE
+knitr::include_graphics(here("results","figures","rf_roc.png"))
+```
+
 
 # Discussion
 

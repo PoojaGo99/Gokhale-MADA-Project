@@ -237,9 +237,6 @@ ht_path = here("results", "tables", "summarytable1.rds")
 saveRDS(ht, file = ht_path)
 
 ```
-
-
-
 # Data exploration through figures
 
 Bar graph for outcomes by drugs.
@@ -317,3 +314,5 @@ print(p2)
 figure_file = here("results", "figures","figure2.png")
 ggsave(filename = figure_file, plot=p2) 
 ```
+
+
