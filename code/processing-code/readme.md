@@ -1,4 +1,5 @@
 # processing-code
 
 This folder contains code for processing data.
-Rune this file first.
+Run this file first.
+This code processes the raw data in the data folder and saves the processed data.

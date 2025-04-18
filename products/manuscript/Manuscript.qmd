@@ -1,5 +1,5 @@
 ---
-title: "Immune-Related Adverse Events (irAEs) associated with Immune Checkpoint Inhibitor (ICI) Therapy in Bladder Cancer: An Analysis of the FDA Adverse Event Reporting System (FAERS)"
+title: "Immune-Related Adverse Events (irAEs) Associated with Immune Checkpoint Inhibitor (ICI) Therapy in Bladder Cancer: An Analysis of the FDA Adverse Event Reporting System (FAERS)"
 author: "Pooja Gokhale, PharmD"
 format:
   docx:
@@ -31,11 +31,11 @@ $\land$ Corresponding author: poojaGokhale\@uga.edu
 
 # Summary/Abstract
 
-Background: Bladder cancer is the ninth most common type of cancer worldwide. Treatment options include surgery, chemotherapy and immunotherapy. Immune checkpoint inhibitors (ICIs) are a class of immunotherapeutic agents recommended for the treatment of bladder cancer. ICIs have been associated with certain immune-related adverse events (irAEs)
+Background: Bladder cancer is the ninth most common type of cancer worldwide. Treatment options include surgery, chemotherapy, and immunotherapy. Immune checkpoint inhibitors (ICIs) are a class of immunotherapeutic agents recommended for the treatment of bladder cancer. ICIs have been associated with certain immune-related adverse events (irAEs)
 
-Methods: Reports in the FAERS dashbaord through December 2024 were analyzed for irAEs to four ICIs recommended in bladder cancer - atezolizumab, avelumab, nivolumab, and pembrolizumab. Standardized queries were used to identify cases of rash, pruritus, hypothyroidism, hyperthyroidism, colitis, hepatitis, and nephritis. Descriptive and disproportionality analyses were performed to detect safety signals.
+Methods: Reports in the FAERS dashboard through December 2024 were analyzed for irAEs to four ICIs recommended in bladder cancer: atezolizumab, avelumab, nivolumab, and pembrolizumab. Standardized queries were used to identify cases of rash, pruritus, hypothyroidism, hyperthyroidism, colitis, hepatitis, and nephritis. Descriptive and disproportionality analyses were performed to detect safety signals.
 
-Results: Out of 2948 cases identified from FAERS, 365 cases with irAEs were analyzed. The largest number of cases were reported for pembrolizumab (n=307), followed by atezolizumab (n = 91), avelumab (n = 41), and nivolumab (n =37). Pembrolizumab was found to have safety signals for all irAEs considered together (PRR: 1.8 (1.52, 2.14), ROR: 2.07 (1.69, 2.55), IC:	0.36 (0.29, 0.44)). A safety signal was also found for rash (PRR: 2.11 (1.17, 3.8), ROR:	2.14 (1.18, 3.9), IC:	0.44 (0.17, 0.71)). Safety signals for atezolizumab included hyperthyroidism and nephritis, while hypothyroidism was identified as a concern for avelumab.
+Results: Out of 2948 cases identified from FAERS, 365 cases with irAEs were analyzed. The largest number of cases was reported for pembrolizumab (n=307), followed by atezolizumab (n = 91), avelumab (n = 41), and nivolumab (n =37). Pembrolizumab was found to have safety signals for all irAEs considered together (PRR: 1.8 (1.52, 2.14), ROR: 2.07 (1.69, 2.55), IC:	0.36 (0.29, 0.44)). A safety signal was also found for rash (PRR: 2.11 (1.17, 3.8), ROR:	2.14 (1.18, 3.9), IC:	0.44 (0.17, 0.71)). Safety signals for atezolizumab included hyperthyroidism and nephritis, while hypothyroidism was identified as a concern for avelumab.
 
 Conclusion: Immune-related adverse events are found to be associated with immune checkpoint inhibitor therapy in bladder cancer. Pembrolizumab appears to have the highest risk, though this may be due to its early approval (2014). Appropriate treatment guidelines must be developed to address the management of irAEs associated with ICI therapy in bladder cancer.
 
@@ -45,15 +45,15 @@ Conclusion: Immune-related adverse events are found to be associated with immune
 
 ## General Background Information
 
-Bladder cancer is the ninth most common type of cancer, according to a 2022 report published by the International Agency for Research on Cancer [@Bray2024]. The American Cancer Society estimates approximately 85,000 new bladder cancer cases, and approximately 17,000 bladder cancer deaths in the United States in 2025.
+Bladder cancer is the ninth most common type of cancer, according to a 2022 report published by the International Agency for Research on Cancer [@Bray2024]. The American Cancer Society estimates approximately 85,000 new bladder cancer cases and approximately 17,000 bladder cancer deaths in the United States in 2025.
 
 The cancer is more common in males than in females, with a male-female ratio of about 4:1[@Leslie2025-lp]. Risk factors for bladder cancer include smoking and occupational chemical exposures (in particular, aromatic amines and polycyclic aromatic hydrocarbons). Certain dietary factors, impaired microbiome, and pelvic radiotherapy may also increase the risk of bladder cancer [@Jubber2023].
 
-Treatment of bladder cancer is multifaceted and depends on the type of tumor. Surgical resection, adjuvant and intravesical chemotherapy, Bacillus Calmette–Guérin (BCG) immunotherapy, and systemic chemotherapy are the different treatment options available [@Leslie2025-lp].
+Treatment of bladder cancer is multifaceted and depends on the type of tumor. Surgical resection, adjuvant and intravesical chemotherapy, Bacillus Calmette–Guérin (BCG) immunotherapy, and systemic chemotherapy are the different treatment options available  [@Leslie2025-lp].
 
-According to the National Comprehensive Cancer Network (NCCN) guidelines, immunotherapy with immune checkpoint inhibitors (ICIs) is recommended at various stages of bladder cancer treatment. ICIs such as pembrolizumab, atezolizumab, nivolumab, and avelumab are FDA approved and recommended for the adjuvant and first and second-line treatment of bladder cancer [@Flaig2024].
+According to the National Comprehensive Cancer Network (NCCN) guidelines, immunotherapy with immune checkpoint inhibitors (ICIs) is recommended at various stages of bladder cancer treatment. ICIs such as pembrolizumab, atezolizumab, nivolumab, and avelumab are FDA-approved and recommended for the adjuvant and first and second-line treatment of bladder cancer [@Flaig2024].
 
-ICIs are associated with various adverse effects, particularly with immune-related adverse events (irAEs) such as pneumonitis, hepatitis, colitis, hypothyroidism, dermatitis, and others [@Yin2023].This study aims to analyze real-world adverse event data from the FDA Adverse Event Reporting System associated with ICI therapy in bladder cancer.
+ICIs are associated with various adverse effects, particularly with immune-related adverse events (irAEs) such as pneumonitis, hepatitis, colitis, hypothyroidism, dermatitis, and others [@Yin2023]. This study aims to analyze real-world adverse event data from the FDA Adverse Event Reporting System associated with ICI therapy in bladder cancer.
 
 {{< pagebreak >}}
 
@@ -66,7 +66,7 @@ Since FAERS consists of self-reported data from multiple sources, there may be d
 
 ## Questions/Hypotheses to be addressed
 
-The study aims to analyze whether irAEs associated with ICIs generate a signal of disproportionate reporting (SDR). The goal is to determine whether irAEs associated with ICIs in baldder cancer are greater than expected, and thus further research and strategies to deal with these adverse events is required.
+The study aims to analyze whether irAEs associated with ICIs generate a signal of disproportionate reporting (SDR). The goal is to determine whether irAEs associated with ICIs in bladder cancer are greater than expected, and thus, further research and strategies to deal with these adverse events are required.
 
 {{< pagebreak >}}
 
@@ -86,22 +86,23 @@ This metric is obtained by comparing the ratio of a drug's adverse event reports
 3. Information component (IC):
 For this metric, the observed vs. expected reporting of a drug-adverse event combination is compared.
 
-A random forest model was fit to distinguish between serious and non-serious cases on the basis of age, sex, and ICI.
+The association between severity of reactions and age and sex was assessed using logistic regression.
+Three machine learning models (logistic regression, decision tree, and random forest) were used to distinguish between serious and non-serious reactions.
 
 {{< pagebreak >}}
 
-## Data aquisition
+## Data acquisition
 
-In order to obtain the FAERS data, the ICIs were used to search by product. Pembrolizumab, atezolizumab, avelumab, and nivolumab were the keywords used. Previously, durvalumab, and ipilimumab were also approved for bladder cancer treatment. However, this indication has since then been removed by the manufacturers. As such, these were not considered. Following this, the search was limited to cases of bladder cancer. A total of 2948 reactions were obtained.
+In order to obtain the FAERS data, the ICIs were used to search by product. Pembrolizumab, atezolizumab, avelumab, and nivolumab were the keywords used. Previously, durvalumab and ipilimumab were also approved for bladder cancer treatment. However, this indication has since then been removed by the manufacturers. As such, these were not considered. Following this, the search was limited to cases of bladder cancer. A total of 2948 reactions were obtained.
 
 
 ## Data import and cleaning
 
-The file was downloaded as an Excel file. First, the column were renamed so as to make them easier to use in code. Then, products with concomitant drugs were removed, so as to focus only on cases associated with ICIs. Then, cases which also had other drugs as the suspect active ingredients were removed. 
+The file was downloaded as an Excel file. Then, in R, the columns were renamed so as to make them easier to use in code. Then, products with concomitant drugs were removed so as to focus only on cases associated with ICIs. Then, cases that also had other drugs as the suspect active ingredients were removed. 
 This was followed by retaining only the irAEs.
-A list of common irAEs was used. This list is available in the supplementary material. Any reactions which had the same age, weight, FDA received date, country of occurrence, suspected active ingredient, and reported reaction were considered duplicates and were removed.
-Following this, the reactions were coded according to the MedDRA Preferred Terms (PTs), and classified according to the System Organ Class (SOC).
-The age values were converted to numeric and the countries were re-classified as US, outside US, and not specified.
+A list of common irAEs was used. This list is available in the supplementary material. This list was informed by common irAEs reported in various clinical trials  [@Galsky2020] [@Galsky2020] [@Bajorin2021] [@Powles2020]. Any reactions that had the same age, weight, FDA received date, country of occurrence, suspected active ingredient, and reported reaction were considered duplicates and were removed.
+Following this, the reactions were coded according to the MedDRA Preferred Terms (PTs) and classified according to the System Organ Class (SOC).
+The age values were converted to numeric, and the countries were reclassified as US, outside US, and not specified.
 The code for the analysis would involve loading the file, removing duplicates, assessing missing data, and deciding whether to remove it. The details are available in the processing code file.
 
 The processing was done according to @fig-processing1.
@@ -119,8 +120,8 @@ knitr::include_graphics(here("assets","Figure1.png"))
 Firstly, descriptive statistics were used to describe the demographic and other characteristics.
 This was followed by creating some descriptive figures.
 Two logistic regression models were fit to assess the association by severity with sex and age.
-The PRR, ROR and IC (along with their 95% CI) were then calculated to assess the drug signal.
-Three different machine learning models were used to distinguish severity on the bases of sex, age, and type of ICI.
+The PRR, ROR, and IC (along with their 95% CI) were then calculated to assess the drug signal.
+Three different machine learning models were used to distinguish severity on the basis of sex, age, and type of ICI.
 Due to missing values, the patient age values were imputed.
 First, the data was split into training and testing data (70/30 split). A 5-fold cross-validation was used.
 
@@ -136,7 +137,7 @@ The mean age reported was 66.94±17.65. A large percentage of the reactions occu
 
 Over 60% of the reactions were associated with pembrolizumab. A majority of the reactions were serious (83.7%).
 
-Most of the reaction were reported by healthcare professionals. Since FAERS is a US-based dashboard, many reactions were reported from the US.
+Most of the reactions were reported by healthcare professionals. Since FAERS is a US-based dashboard, many reactions were reported from the US.
 
 
 ```{r}
@@ -216,7 +217,7 @@ ft
 ```
 
 
-Pembrolizumab has the highest number of reactions. The largest percentage of reactions are classified as "Other". These include reactions which do not belong to the other organ classes, such as myositis.
+Pembrolizumab has the highest number of reactions. The largest percentage of reactions are classified as "Other". These include reactions that do not belong to the other organ classes, such as myositis.
 
 {{< pagebreak >}}
 
@@ -253,7 +254,7 @@ knitr::include_graphics(here("results","figures","severity_age.png"))
 ```
 
 The predicted severity decreases with age.
-However, this relationship is also not signficant.
+However, this relationship is also not significant.
 
 {{< pagebreak >}}
 
@@ -275,7 +276,7 @@ For IC:
 log2((a+b+c+d)/(a+c)*(a+b)/n)
 
 
-The following tables show the results from the disproportionality analysis.
+The following tables show the results of the disproportionality analysis.
 
 ```{r}
 #| label: tbl-atezolizumab
@@ -425,7 +426,7 @@ When considering individual irAEs, pembrolizumab also has a safety signal for ra
 
 Atezolizumab has a safety signal for hyperthyroidism (PRR: 3.51 (1.07, 11.45), ROR: 3.53 (1.07, 11.61), IC:	1.1 (0.33, 1.87). There also may be a signal for nephritis (PRR: 3.65 (0.98, 13.56), ROR: 3.68 (0.98, 13.73), IC:	1.12 (0.29, 1.96), though the 95% CI for PRR and ROR is not greater than 1 (though very close to 1).
 
-Similarly, avelumab may has a safety signal for hypothyroidism (PRR: 3.05 (0.98, 9.51), ROR:	3.08 (0.97, 9.75), IC:	1.32 (0.12, 2.52)).
+Similarly, avelumab may have a safety signal for hypothyroidism (PRR: 3.05 (0.98, 9.51), ROR:	3.08 (0.97, 9.75), IC:	1.32 (0.12, 2.52)).
 
 No significant safety signals were found for nivolumab.
 
@@ -433,7 +434,7 @@ No significant safety signals were found for nivolumab.
 
 ## Machine Learning Analysis
 
-@tbl--randomforest shows the results of the three machine learning models (logistic regression, decision tree, random forest).
+@tbl-randomforest shows the results of the three machine learning models (logistic regression, decision tree, random forest).
 
 ```{r}
 #| label: tbl-randomforest
@@ -442,32 +443,41 @@ No significant safety signals were found for nivolumab.
 #| warning: FALSE
 #| message: FALSE
 
+library(dplyr)
 library(flextable)
-library(officer)
 
-# Load and prepare data
+# Load and clean data
 rf_metrics <- readRDS("../../results/tables/model_table.rds")
+rf_metrics_cleaned <- rf_metrics[-1, ]
 
-rf_metrics_cleaned <- rf_metrics[-1, ]  # Removes the second row
+# Convert numeric-looking columns to double (if needed)
+rf_metrics_cleaned <- rf_metrics_cleaned %>%
+  mutate(across(where(~ all(grepl("^[-+]?[0-9]*\\.?[0-9]+$", .))), as.numeric))
 
+# Build styled flextable
 flextable(rf_metrics_cleaned) |> 
   bold(part = "header") |> 
   border(part = "all", border = fp_border(color = "black", width = 1)) |> 
-  colformat_double(digits = 3) |>  
+  colformat_double(digits = 3, na_str = "-") |>  
   align(align = "center", part = "header") |> 
-  align(align = "right", part = "body", j = which(sapply(rf_metrics_cleaned, is.numeric))) |> 
+  align(
+    align = "left",
+    part = "body",
+    j = which(sapply(rf_metrics_cleaned, is.numeric))
+  ) |> 
   set_table_properties(width = 1, layout = "autofit") |> 
-  width(width = c(1.8, rep(1.2, ncol(rf_metrics_cleaned)-1))) |>  
+  width(width = c(1.8, rep(1.2, ncol(rf_metrics_cleaned) - 1))) |>  
   bg(part = "header", bg = "#f2f2f2") |>  
   fontsize(size = 10, part = "all") |> 
   padding(padding = 4, part = "all")
 
+
 ```
 
-The Random Forest model has an AUC of 0.806. Thus, this models is able to predict between serious and non-serious cases ~81% of the time.
+The Random Forest model has an AUC of 0.806. Thus, this model is able to predict between serious and non-serious cases ~81% of the time.
 The logistic regression model is next, able to distinguish ~60% of the time.
 The decision tree model performs poorly, possibly due to fitting issues.
-All the models have the same accuracy. Additionally, sensitivity is 0 and specificity is high, meaning all the models always predict 'serious'.
+All the models have the same accuracy. Additionally, sensitivity is 0, and specificity is high, meaning all the models always predict 'serious'.
 Such problems arise due to class imbalances, and may require advanced methods to deal with.
 The random forest model does not perform as well on the test data (AUC=0.56), and is able to distinguish the severity only 56% of the time.
 
@@ -519,6 +529,6 @@ A future analysis with additional data may find different results to the one obt
 Immune checkpoint inhibitor therapy are associated with immune-related adverse events (particularly rash, hypothyroidism, hyperthyroidism, and nephritis) in bladder cancer. Currently, no established guidelines exist to manage these adverse events.
 There is a need to develop centralized guidelines and protocols for managing irAEs associated with ICI therapy.
 
-*More details will be added in part 5 to the discussion section.*
+{{< pagebreak >}}
 
 # References

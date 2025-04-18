@@ -28,7 +28,10 @@ Then, run the analysis file. This conducts a disproportionality analysis and run
 
 # Additional Method Details
 
-This part will be updated in part 5 - after improving the random forest code.
+Three machine learning models were fit - logistic regression, decision tree, and random forest.
+We found that the models were not able to distinguish adequately between the serious and non-serious reactions.
+This most probably occurs due to the class imbalance - 305 serious, 60 non-serious cases.
+
 {{< pagebreak >}}
 
 
@@ -45,6 +48,7 @@ library(here)
 library(knitr)
 knitr::include_graphics(here("results","figures","figure1.png"))
 ```
+We can see that a large proportion of the reactions are serious.
 
 @fig-result1 shows the bar chart by type of organ system involved in the reaction.
 
@@ -55,7 +59,9 @@ knitr::include_graphics(here("results","figures","figure1.png"))
 knitr::include_graphics(here("results","figures","figure2.png"))
 ```
 
-@fig-result2 shows the bar chart by type of organ system involved in the reaction.
+The most common reactions are dermatological, followed by gastrointestinal.
+
+@fig-result2 shows the ROC curve for the logistic regression model.
 
 ```{r}
 #| label: fig-result2
@@ -63,8 +69,9 @@ knitr::include_graphics(here("results","figures","figure2.png"))
 #| echo: FALSE
 knitr::include_graphics(here("results","figures","logit_roc.png"))
 ```
+We see that the curve covers about 60% of the area.
 
-@fig-result3 shows the bar chart by type of organ system involved in the reaction.
+@fig-result3 shows the ROC curve for the decision tree model.
 
 ```{r}
 #| label: fig-result3
@@ -73,7 +80,9 @@ knitr::include_graphics(here("results","figures","logit_roc.png"))
 knitr::include_graphics(here("results","figures","dt_roc.png"))
 ```
 
-@fig-result4 shows the bar chart by type of organ system involved in the reaction.
+The curve is a staright diagonal line (covering about 50% of the area). Thus, this model is not able to distinguish between serious and non-serious cases better than at random.
+
+@fig-result4 shows the ROC curve for the random forest model.
 
 ```{r}
 #| label: fig-result4
@@ -82,17 +91,13 @@ knitr::include_graphics(here("results","figures","dt_roc.png"))
 knitr::include_graphics(here("results","figures","rf_roc.png"))
 ```
 
+We see that the curve covers about 80% of the area.
 
 # Discussion
 
-Additional discussion will be done in part 5 after improving the random effects model.
-[@Leslie2025-lp] is a placeholder reference.
+Overall, the random forest model performs better.
+However, all three models are not able to distinguish between serious and non-serious reactions, possibly due to the class imbalance.
 
-
-{{< pagebreak >}}
-
-
-# References
 
 
 
