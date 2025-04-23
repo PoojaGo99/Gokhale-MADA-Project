@@ -25,6 +25,20 @@ Then, run the analysis file. This conducts a disproportionality analysis and run
 
 {{< pagebreak >}}
 
+# List of irAEs:
+Skin and subcutaneous tissue disorders:
+Rash, pruritus, dermatitis, psoriasis
+Gastrointestinal disorders:
+Colitis, hepatitis, pancreatitis, enterocolitis, ileitis, ileocolitis
+Nervous system disorders:
+Myasthenia gravis, Graves disease, myelitis, encephalitis, neuritis, peripheral neuropathy
+Endocrine disorders:
+Hyperthyroidism, hypothyroidism, thyroiditis, thyrotoxicosis, adrenitis, adrenal insufficiency, hypogonadism, hyperparathyroidism, hypercortisolism, hypophysitis, hypoparathyroidism, hypocortisolism, autoimmune diabetes
+Cardiac disorders: myocarditis, pericarditis, myocarditis
+Respiratory, thoracic, and mediastinal_disorders:
+Pneumonitis
+Renal and urinary_disorders: 
+Pyelonephritis, nephritis
 
 # Additional Method Details
 
