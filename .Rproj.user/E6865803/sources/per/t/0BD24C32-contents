@@ -1,0 +1,71 @@
+---
+title: "Supplement to Example Manuscript Template for a Data Analysis Project"
+format:
+  docx:
+    toc: false
+    number-sections: true
+    highlight-style: github
+bibliography: ../../../assets/dataanalysis-references.bib
+csl: ../../../assets/nlm-style.csl
+---
+
+# Overview
+
+This supplement has a few exploratory figures and discussion of additional methods that can be used for disproportionality analysis.
+
+
+# Code and file information
+
+To reproduce this study:
+First run the processing code file. This processed the raw data in the 'data' subfolder and saves it as an rds file.
+Then, run the exploratory data (eda) code file. This file produces summary tables and figures.
+The figures are available in this supplement.
+Then, run the analysis file. This conducts a disproportionality analysis and runs a random forest model to assess serious vs non-serious cases based on age, sex, and ICI.
+
+
+{{< pagebreak >}}
+
+
+# Additional Method Details
+
+This part will be updated in part 5 - after improving the random forest code.
+{{< pagebreak >}}
+
+
+# Additional results
+
+
+@fig-result shows the number of reactions by drug, along with the seriousness of the reaction.
+
+```{r}
+#| label: fig-result
+#| fig-cap: "Bar chart of outcome of immune checkpoint inhibitors"
+#| echo: FALSE
+library(here)
+library(knitr)
+knitr::include_graphics(here("results","figures","figure1.png"))
+```
+
+@fig-result1 shows the bar chart by type of organ system involved in the reaction.
+
+```{r}
+#| label: fig-result1
+#| fig-cap: "Bar chart of types of reactions"
+#| echo: FALSE
+knitr::include_graphics(here("results","figures","figure2.png"))
+```
+
+
+# Discussion
+
+Additional discussion will be done in part 5 after improving the random effects model.
+[@Leslie2025-lp] is a placeholder reference.
+
+
+{{< pagebreak >}}
+
+
+# References
+
+
+

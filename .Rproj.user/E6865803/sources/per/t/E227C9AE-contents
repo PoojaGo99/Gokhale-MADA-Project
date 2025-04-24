@@ -1,0 +1,319 @@
+---
+title: "Exploratory analysis"
+---
+
+We start of by summarizing all the information
+
+# Setup
+
+```{r}
+#load needed packages. make sure they are installed.
+library(here) #for data loading/saving
+library(dplyr)
+library(skimr)
+library(ggplot2)
+library(tidyr)
+library(knitr)
+```
+
+
+Load the data.
+
+```{r}
+#Path to data. Note the use of the here() package and not absolute paths
+data_location <- here::here("data","processed-data","processeddata.rds")
+#load data
+mydata <- readRDS(data_location)
+```
+
+
+# Data exploration through tables
+
+First, we summarize all our information using a table.
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(tidyr)
+library(huxtable)
+
+# 1. Summarize Age (Mean and SD)
+age_summary <- mydata %>%
+  group_by(suspect_product_active_ingredients) %>%
+  summarise(
+    mean_age = mean(patient_age, na.rm = TRUE),
+    sd_age = sd(patient_age, na.rm = TRUE)
+  ) %>%
+  mutate(`Age, mean years ± SD` = paste0(round(mean_age, 1), " ± ", round(sd_age, 1))) %>%
+  select(suspect_product_active_ingredients, `Age, mean years ± SD`)
+
+# 2. Summarize Sex Distribution
+sex_summary <- mydata %>%
+  group_by(suspect_product_active_ingredients, sex) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = sex, values_from = count, values_fill = list(count = 0)) %>%
+  rename(`Not Specified (Sex)` = `Not Specified`) %>%
+  select(suspect_product_active_ingredients, Male, Female, `Not Specified (Sex)`)
+
+# 3. Summarize Reaction Severity
+reaction_severity_summary <- mydata %>%
+  group_by(suspect_product_active_ingredients, serious) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = serious, values_from = count, values_fill = list(count = 0)) %>%
+  rename(Serious = Serious, `Non-Serious (Reaction)` = `Non-Serious`) %>%
+  select(suspect_product_active_ingredients, Serious, `Non-Serious (Reaction)`)
+
+# 4. Summarize Outcomes
+outcomes_summary <- mydata %>%
+  group_by(suspect_product_active_ingredients, outcomes) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = outcomes, values_from = count, values_fill = list(count = 0)) %>%
+  rename(`Non-Serious (Outcome)` = `Non-Serious`) %>%
+  select(suspect_product_active_ingredients, Died, Hospitalized, Disabled, `Life Threatening`, `Non-Serious (Outcome)`, `Other Outcomes`)
+
+# 5. Summarize Reporter Type
+reporter_type_summary <- mydata %>%
+  group_by(suspect_product_active_ingredients, reporter_type) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = reporter_type, values_from = count, values_fill = list(count = 0)) %>%
+  select(suspect_product_active_ingredients, `Healthcare Professional`, Consumer)
+
+# 6. Summarize Country
+country_summary <- mydata %>%
+  group_by(suspect_product_active_ingredients, country_where_event_occurred) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = country_where_event_occurred, values_from = count, values_fill = list(count = 0)) %>%
+  rename(`Not Specified (Country)` = `Not Specified`) %>%
+  select(suspect_product_active_ingredients, US, `Outside US`, `Not Specified (Country)`)
+
+# Combine all summaries into one table
+combined_summary <- age_summary %>%
+  full_join(sex_summary, by = "suspect_product_active_ingredients") %>%
+  full_join(reaction_severity_summary, by = "suspect_product_active_ingredients") %>%
+  full_join(outcomes_summary, by = "suspect_product_active_ingredients") %>%
+  full_join(reporter_type_summary, by = "suspect_product_active_ingredients") %>%
+  full_join(country_summary, by = "suspect_product_active_ingredients")
+
+# Convert all columns (except `suspect_product_active_ingredients`) to character
+combined_summary <- combined_summary %>%
+  mutate(across(-suspect_product_active_ingredients, as.character))
+
+# Transpose the table for Word compatibility
+transposed_table <- combined_summary %>%
+  pivot_longer(cols = -suspect_product_active_ingredients, names_to = "Attribute", values_to = "Value") %>%
+  pivot_wider(names_from = suspect_product_active_ingredients, values_from = Value)
+
+# Rename columns for clarity
+colnames(transposed_table)[1] <- "Attribute"
+
+# Get the current order of attributes
+current_order <- transposed_table$Attribute
+
+# Create a new order with subheadings inserted
+new_order <- c()
+insert_subheading <- function(order_vector, before, subheading) {
+  pos <- which(order_vector == before)
+  if (length(pos) > 0) {
+    c(order_vector[1:(pos-1)], subheading, order_vector[pos:length(order_vector)])
+  } else {
+    order_vector
+  }
+}
+
+# Insert subheadings before specific attributes
+new_order <- insert_subheading(current_order, "Male", "Sex")
+new_order <- insert_subheading(new_order, "Serious", "Severity of reaction")
+new_order <- insert_subheading(new_order, "Died", "Outcomes")
+new_order <- insert_subheading(new_order, "Healthcare Professional", "Reporter type")
+new_order <- insert_subheading(new_order, "US", "Country")
+
+# Create a new table with subheadings
+subheading_rows <- data.frame(
+  Attribute = setdiff(new_order, current_order),
+  stringsAsFactors = FALSE
+)
+subheading_rows[colnames(transposed_table)[-1]] <- ""
+
+final_table <- bind_rows(
+  lapply(new_order, function(x) {
+    if (x %in% subheading_rows$Attribute) {
+      subheading_rows[subheading_rows$Attribute == x, ]
+    } else {
+      transposed_table[transposed_table$Attribute == x, ]
+    }
+  })
+)
+
+# Create the final table with title and clean formatting
+huxtable_table <- as_hux(final_table, add_colnames = TRUE) %>% 
+  # Add a title row
+  insert_row(c("Adverse Event Report Summary", rep("", ncol(final_table)-1)), 
+             after = 0) %>% 
+  # Merge title cells
+  merge_cells(1, 1:ncol(final_table)) %>%
+  # Basic formatting
+  set_all_borders(1) %>%               # All cell borders
+  set_align(everywhere, everywhere, "center") %>%  # Center alignment
+  set_valign(everywhere, everywhere, "middle") %>% # Vertical center
+  set_font_size(10) %>%               # Base font size
+  set_font_size(1, everywhere, 12) %>% # Larger font for title
+  set_bold(1, everywhere, TRUE) %>%   # Bold title only
+  # Ensure no other text is bolded
+  set_bold(2:nrow(final_table)+1, everywhere, FALSE)
+
+# Format the title row
+huxtable_table <- huxtable_table %>%
+  set_background_color(1, everywhere, "gray95") %>%
+  set_top_border(1, everywhere, 2) %>%
+  set_bottom_border(1, everywhere, 2)
+
+huxtable_table
+
+```
+
+We save the table.
+
+```{r}
+# save to file
+huxtable_table_path = here("results", "tables", "summarytable.rds")
+saveRDS(huxtable_table, file = huxtable_table_path)
+```
+
+
+Table 2 - Summarizing organ system reaction by drug type
+```{r}
+# Load necessary libraries
+library(huxtable)
+library(dplyr)
+library(tidyr)
+
+# Define the organ system columns
+organ_systems <- c("organ_system_1", "organ_system_2", "organ_system_3", "organ_system_4", "organ_system_5")
+
+# Transform the organ system columns into a single column and calculate counts and percentages
+organ_system_summary <- mydata %>%
+    select(suspect_product_active_ingredients, all_of(organ_systems)) %>%
+    pivot_longer(cols = all_of(organ_systems), names_to = "Organ_System", values_to = "Reaction") %>%
+    filter(!is.na(Reaction)) %>%
+    group_by(suspect_product_active_ingredients, Reaction) %>%
+    summarise(Count = n(), .groups = 'drop') %>%
+    mutate(Percent = round((Count / nrow(mydata)) * 100, 1)) %>%
+    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+
+# Pivot the summary to have reactions as rows and drugs as columns, combining counts and percentages
+organ_system_pivoted <- organ_system_summary %>%
+    select(suspect_product_active_ingredients, Reaction, Value) %>%
+    pivot_wider(names_from = suspect_product_active_ingredients, values_from = Value, values_fill = list(Value = "0"))
+
+# Create a huxtable table
+ht <- huxtable::as_hux(organ_system_pivoted)
+
+# FINAL WORKING SOLUTION
+ht <- as_hux(organ_system_pivoted, add_colnames = TRUE) %>%
+  # Basic formatting
+  set_bold(1, everywhere, TRUE) %>%      # Bold headers
+  set_align(everywhere, everywhere, "center") %>%
+  set_all_borders(brdr(1, "solid")) %>%  # Solid borders
+  set_all_padding(4) %>%
+  set_font_size(10) %>%
+  set_width(0.9)
+
+# Add title as a caption (works in exports)
+caption(ht) <- "Immune Checkpoint Inhibitors by Organ System and Reaction"
+
+# Bold specific drug names
+drug_cols <- which(colnames(organ_system_pivoted) %in% 
+                  c("atezolizumab", "pembrolizumab", "nivolumab", "avelumab"))
+if (length(drug_cols) > 0) {
+  ht <- ht %>% set_bold(1, drug_cols, TRUE)
+}
+
+# Display
+ht
+
+
+#Save the table
+ht_path = here("results", "tables", "summarytable1.rds")
+saveRDS(ht, file = ht_path)
+
+```
+
+
+
+# Data exploration through figures
+
+Bar graph for outcomes by drugs.
+
+
+```{r}
+library(ggplot2)
+
+# Define custom colors for the 'serious' variable
+custom_colors <- c(
+    "Serious" = "#d7191c",  # Red for serious
+    "Non-Serious" = "#2c7bb6"    # Blue for non-serious
+)
+
+# Create the plot with custom colors for 'serious'
+p1 <- mydata %>%
+    ggplot(aes(x = suspect_product_active_ingredients, fill = serious)) +
+    geom_bar(position = "stack") + # Use "stack" for stacked bars
+    scale_fill_manual(values = custom_colors) + # Apply custom colors
+    labs(
+        title = "Bar Plot of Outcomes of Immune Checkpoint Inhibitors",
+        x = "Immune Checkpoint Inhibitors",
+        y = "Count",
+        fill = "Outcomes"
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate x-axis labels for readability
+
+# Print the plot
+print(p1)
+
+figure_file = here("results", "figures","figure1.png")
+ggsave(filename = figure_file, plot=p1) 
+```
+
+Now let's look at the bar graph by type of organ system.
+
+```{r}
+# Define the organ system columns
+organ_systems <- c("organ_system_1", "organ_system_2", "organ_system_3", "organ_system_4", "organ_system_5")
+
+# Create a summary dataset for reactions across all organ systems
+organ_system_summary <- mydata %>%
+    select(all_of(organ_systems)) %>%
+    pivot_longer(cols = everything(), names_to = "Organ_System", values_to = "Reaction") %>%
+    filter(!is.na(Reaction)) %>%
+    group_by(Reaction) %>%
+    summarise(Count = n(), .groups = 'drop') %>%
+    mutate(Percent = round((Count / sum(Count)) * 100, 1)) %>%
+    mutate(Value = paste(Count, " (", Percent, "%)", sep = ""))
+
+# View the summary dataset
+organ_system_summary
+
+# Plot the reaction types with counts and percentages
+p2 <- organ_system_summary %>%
+    ggplot(aes(x = reorder(Reaction, Count), y = Count)) +  # Reorder by Count
+    geom_col(fill = "#1f77b4") +
+    labs(
+        title = "Bar Plot of Reaction Types",
+        x = "Reaction Type",
+        y = "Count",
+        caption = "Percentages are shown in parentheses"
+    ) +
+    theme_minimal() +
+    geom_text(aes(label = Value), hjust = 1.1, size = 3) +  # Adjust label position to avoid overlap
+    coord_flip() +  # Flip the axes to make it horizontal
+    theme(
+        plot.margin = margin(10, 50, 10, 10)  # Add margin to the right side to avoid label cut-off
+    )
+
+# Print the plot
+print(p2)
+
+figure_file = here("results", "figures","figure2.png")
+ggsave(filename = figure_file, plot=p2) 
+```
