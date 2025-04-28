@@ -1,0 +1,171 @@
+---
+title: Project Review Template 
+author: YOUR NAME
+date: date-modified
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Overview
+
+Title of project: Immune-Related Adverse Events (irAEs) Associated with Immune Checkpoint Inhibitor (ICI) Therapy in Bladder Cancer: An Analysis of the FDA Adverse Event Reporting System (FAERS)
+
+Name of project author(s):Pooja Gokhale
+
+Name of project reviewer:Muhammad Nasir 
+
+
+## Background, Context and Motivation
+
+### Feedback and Comments
+
+The study provides very clear background, strong motivation and context. The backgroud is sopported by various sources. 
+
+### Summary assessment (PICK ONE, DELETE THE OTHERS)
+
+* strong contextualization and motivation
+
+
+## Question description
+
+
+### Feedback and Comments
+
+The study clearly state aims of the study and hypotheses 
+
+### Summary assessment
+
+* question/hypotheses fully clear
+
+
+## Data description
+
+
+### Feedback and Comments
+
+The data source is provided. The author also explain how to obtain the data, keywords used to search and filter the dataset from website. A flow process diagram also is provided, which is very helpful and easy to understand by readers. 
+
+
+
+### Summary assessment
+
+* source and overall structure of data well explained
+
+
+## Data wrangling and exploratory analysis
+
+
+### Feedback and Comments
+The author explained the data cleaning and data processing in very clear way and reasonable. However, it might be useful to put more note in the code, so other people can understand and follow the process easily
+
+
+
+### Summary assessment
+
+* essentially no weaknesses in wrangling and exploratory component
+
+
+
+## Appropriateness of Analysis
+
+
+### Feedback and Comments
+
+The study used three different metric to assess the safety of a particular irAE: Proportional Reporting Ratio (PRR), Reporting Odd Ratios (ROR), Information Component (IC). Those are very rationable to use in this study to answer the research questions. 
+
+### Summary assessment
+
+* strong and reasonable analysis
+
+## Presentation
+
+
+### Feedback and Comments
+The author presents the result very clear and simple. It is easy to understand. All figures are interpreted and described very well. 
+
+### Summary assessment
+
+* results are very well presented
+
+
+## Discussion/Conclusions
+
+
+### Feedback and Comments
+
+There is a need to add more discussion, compare the result with other studies and use citation. The study provided enough information about strenght and limitation of the study. 
+
+### Summary assessment
+
+* strong, complete and clear discussion
+
+
+## Further comments
+
+
+
+
+# Overall project content evaluation
+
+
+## Structure
+Is the project well structured? Are files in well labeled folders? Do files have reasonable names? Are all "junk" files not needed for analysis/reproduction removed? By just looking at files and folders, can you get an idea of how things fit together?
+
+### Feedback and Comments
+
+The project is well structured. Folders and files are well placed and can connect with the manuscript. Some readme.dm files need to be updated. 
+
+
+
+### Summary assessment
+
+* well structured
+
+
+## Documentation 
+
+### Feedback and Comments
+
+Documentation is very good. However, it would be better to add more note in the code to help reader understand in every steps. 
+
+### Summary assessment
+
+* fully and well documented
+
+
+
+## Reproducibility
+
+### Feedback and Comments
+
+All codes work well. No error occured. The file can be rendered. Well done. It is fully reproductibel. 
+
+
+### Summary assessment
+
+* fully reproducible without issues
+
+
+## Thoroughness
+
+
+### Feedback and Comments
+
+This is very thorough study. The author paid attention in every important step. 
+
+### Summary assessment
+
+* strong level of thorougness
+
+
+## Further comments
+
+
+
+
+
+
+
