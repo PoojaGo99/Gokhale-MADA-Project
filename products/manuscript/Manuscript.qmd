@@ -25,7 +25,7 @@ library(knitr)
 
 1.  Department of Clinical and Administrative Pharmacy, College of Pharmacy, University of Georgia, Athens, GA, USA.
 
-$\land$ Corresponding author: poojaGokhale\@uga.edu
+$^{*}$ Corresponding author: poojaGokhale\@uga.edu
 
 {{< pagebreak >}}
 
@@ -100,7 +100,7 @@ In order to obtain the FAERS data, the ICIs were used to search by product. Pemb
 
 The file was downloaded as an Excel file. Then, in R, the columns were renamed so as to make them easier to use in code. Then, products with concomitant drugs were removed so as to focus only on cases associated with ICIs. Then, cases that also had other drugs as the suspect active ingredients were removed. 
 This was followed by retaining only the irAEs.
-A list of common irAEs was used. This list is available in the supplementary material. This list was informed by common irAEs reported in various clinical trials  [@Galsky2020] [@Galsky2020] [@Bajorin2021] [@Powles2020]. Any reactions that had the same age, weight, FDA received date, country of occurrence, suspected active ingredient, and reported reaction were considered duplicates and were removed.
+A list of common irAEs was used. This list is available in the supplementary material. This list was informed by common irAEs reported in various clinical trials  [@Galsky2020a] [@Galsky2020b] [@Bajorin2021] [@Powles2020]. Any reactions that had the same age, weight, FDA received date, country of occurrence, suspected active ingredient, and reported reaction were considered duplicates and were removed.
 Following this, the reactions were coded according to the MedDRA Preferred Terms (PTs) and classified according to the System Organ Class (SOC).
 The age values were converted to numeric, and the countries were reclassified as US, outside US, and not specified.
 The code for the analysis would involve loading the file, removing duplicates, assessing missing data, and deciding whether to remove it. The details are available in the processing code file.
@@ -507,10 +507,28 @@ The ROC curves for the different models are available in the Supplementary Mater
 ## Summary and Interpretation
 
 In this study, the safety signals for the most commonly reported irAEs in clinical trials were assessed.
-Safety signals for pembrolizumab included all irAEs as a whole, as well as a signal for rash.
-Hyperthyroidism was a concern with atezolizumab, while nephritis may also be an issue.
-Hypothyroidism could be of concern with avleumab use.
-No specific signals were found with nivolumab.
+
+Pembrolizumab had a safety signal for all irAEs considered together, as well as for rash.
+
+Five clinical trials [@Galsky2020a,@Powles2021, @Apolo2025, @Bellmunt2017, @Zhang2020] have reported rash as an adverse effect associated with pembrolizumab monotherapy in bladder cancer.
+The report of rash from both clinical trials and real-world data suggests that this is a significant adverse event. 
+Rash associated with ICIs may be of various grades. For a grade 1 rash, the ICI therapy may be continued. Grade 2 rash may necessitate discontinuation of ICIs, and grade 3 rash requires discontinuation. Based on the grade, treatment with topical or systemic corticosteroids is appropriate. Dermatological consultation is usually suggested  [@Si2019].
+
+Atezolizumab had a safety signal for hyperthyroidism. Two clinical trials  [@Galsky2020b, @Bellmunt2021] reported hyperthyroidism associated with atezolizumab monotherapy in bladder cancer.
+
+Avelumab may have a safety signal for hypothyroidism. One clinical trial assessing avelumab monotherapy has reported hypothyroidism as an adverse event  [@Powles2020]. 
+Thyroid disorders are seen with about 1-15% of patients receiving ICIs  [@Ferrari2018].
+Risk factors for thyroid dysfunction with ICIs include gender (females are at a higher risk), age (younger age), race (Caucasian and Hispanic individuals are at higher risk), obesity, higher number of treatment cycles, and higher baseline thyroid-stimulating hormone (TSH)  [@Chera2022].
+
+It has been suggested that a combination of genetic factors, cellular autoimmunity, and humoral immunity may lead to thyroid dysfunction  [@Deligiorgi2021].
+ICI therapy should involve thyroid function tests every 4-6 weeks. Treatment is largely symptomatic and may involve levothyroxine therapy in the case of hypothyroidism  [@Yamauchi2025].
+
+Atezolizumab may also have a safety signal for nephritis. Two clinical trials have reported nephritis associated with atezolizumab monotherapy in bladder cancer  [@Galsky2020b, @Bellmunt2021].
+Nephritis is not a common adverse event associated with ICIs, affecting about 2-5% of patients. The mechanism for the development of this adverse event is not well established. Most patients recover with appropriate management. Treatment may involve discontinuation of the ICI, and corticosteroid therapy  [@Barbir2024].
+
+No prospective trials have defined strategies for effectively managing specific immune-related adverse events; thus, clinical practice remains variable. Committees are working to improve guidelines and to harmonize expert consensus  [@Postow2018].
+In conclusion, irAEs are associated with ICI monotherapy with bladder cancer. More comprehensive guidelines are required for the management of these adverse events. Clinicians should be aware of the potential for such adverse events.
+
 
 ## Strengths and Limitations
 
